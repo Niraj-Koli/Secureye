@@ -1,0 +1,16 @@
+.modelButton {
+    font-size: 2rem;
+    font-weight: 600;
+    border: none;
+    width: 42rem;
+    padding: 1rem 0 0;
+    text-transform: capitalize;
+    border-radius: 1rem;
+    background-color: #000000;
+    transition: all 0.1s ease-in;
+
+    &:hover {
+        color: #000000;
+        background-color: #00ffbb;
+    }
+}

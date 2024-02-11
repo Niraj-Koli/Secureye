@@ -1,0 +1,45 @@
+.sliderContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffdab9;
+    padding: 0 0 5rem;
+}
+
+.sliderHeading {
+    position: relative;
+    padding: 1.35rem 5rem;
+    font-size: 3rem;
+    margin: 2rem 0 2rem;
+    overflow: hidden;
+    background: linear-gradient(currentcolor, currentcolor) no-repeat top center,
+        linear-gradient(currentcolor, currentcolor) no-repeat bottom center;
+    background-size: calc(100% - 6.2rem) 0.1rem;
+}
+
+.sliderHeading:before,
+.sliderHeading:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    border: solid 0.2rem;
+    border-top: none;
+    border-bottom: none;
+    transform: skew(45deg);
+}
+
+.sliderHeading:after {
+    transform: skew(-45deg);
+}
+
+.sliderCard {
+    box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
+    border-radius: 2.3rem;
+    padding: 0.5rem;
+    background-color: #ffffff;
+    width: 80%;
+}

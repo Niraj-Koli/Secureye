@@ -1,0 +1,172 @@
+.predictorContainer {
+    height: 170vh;
+    background-image: url("/static/main.png");
+    background-size: cover;
+}
+
+.uploadButtonCard {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
+    border-radius: 1.6rem;
+    width: 100%;
+    margin: 0 0 4rem;
+    max-width: 35rem;
+    background-color: #ffffff;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%, 1rem);
+}
+
+.uploadButton {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 2.5rem;
+    width: 35%;
+    border: none;
+    background-color: #000000;
+    color: #ffffff;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease-in;
+
+    &:hover {
+        background-color: #ff5c33;
+    }
+}
+
+.predictionCards {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 40px;
+}
+
+.imageCard {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
+    border-radius: 1.8rem;
+    width: 100%;
+    height: 42rem;
+    max-width: 58rem;
+    padding: 0.5rem;
+    background-color: #ffffff;
+}
+
+.imageTemplate {
+    width: 100%;
+    height: 100%;
+    border-radius: 1.6rem;
+    background-image: url("/static/imageDefault.jpg");
+    background-size: cover;
+    background-position: center;
+}
+
+.renderedImage {
+    width: 100%;
+    height: 100%;
+    border-radius: 1.6rem;
+}
+
+.predictionButtonCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
+    border-radius: 1.6rem;
+    width: 100%;
+    max-width: 45rem;
+    background-color: #ffffff;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%, 5rem);
+}
+
+.predictButton {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 2.5rem;
+    width: 80%;
+    border: none;
+    background-color: #000000;
+    color: #ffffff;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease-in;
+
+    &:hover {
+        background-color: #ff5c33;
+    }
+}
+
+.reportTableCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
+    border-radius: 1.6rem;
+    width: 100%;
+    max-width: 80rem;
+    background-color: #ffffff;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%, 8rem);
+}
+
+.reportTableHeading {
+    padding-top: 2rem;
+    font-size: 2.7rem;
+}
+
+.reportTableHeading span {
+    background: #000000;
+    color: #fff;
+    display: inline-block;
+    padding: 0.7rem 4rem;
+    clip-path: polygon(100% 0, 93% 50%, 100% 99%, 0% 100%, 7% 50%, 0% 0%);
+}
+
+.reportTable {
+    width: 85%;
+    border-radius: 1.6rem;
+    border-spacing: 2rem 0;
+    border-collapse: separate;
+    margin: 3rem;
+}
+
+.reportHeading {
+    font-size: 2rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 1.2rem;
+    border: 0.1rem solid #dddddd;
+    background-color: #f2f2f2;
+}
+
+.areas {
+    font-size: 2rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 1.2rem;
+    border: 0.1rem solid #dddddd;
+    background-color: #ffffff;
+}
+
+.reportDownloadButton {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 3rem;
+    width: 30%;
+    border: none;
+    background-color: #000000;
+    color: #ffffff;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease-in;
+
+    &:hover {
+        background-color: #ff5c33;
+    }
+}

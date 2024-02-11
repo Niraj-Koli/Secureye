@@ -1,0 +1,166 @@
+.loginContainer {
+    height: 100vh;
+    background-image: url("/static/10.jpg");
+    background-size: cover;
+}
+
+.loginCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
+    border-radius: 1.6rem;
+    padding: 2rem 4rem;
+    max-width: 52rem;
+    width: 100%;
+    margin: auto;
+    background-color: #ffffff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.loginHeading {
+    margin: 1rem 0;
+    font-size: 3rem;
+}
+
+.loginForm {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.8rem;
+    width: 100%;
+}
+
+.loginButtonContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.loginButton {
+    margin: 1.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    background-color: #000000;
+    color: #ffffff;
+    transition: all 0.3s ease-in;
+
+    &:hover {
+        background-color: #ff5c33;
+    }
+}
+
+.loginInput {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.loginLabels {
+    font-size: 1.5rem;
+    font-weight: 600;
+    background: #ffffff;
+}
+
+.showPasswordIcon {
+    font-size: 3rem;
+    font-weight: 600;
+    color: #000000;
+}
+
+.anchorsContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.anchors {
+    color: #000000;
+    font-size: 1.3rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.successModal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 2rem;
+}
+
+.successTitle {
+    color: #00e676;
+    font-size: 3rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.successMessage {
+    color: #00e676;
+    font-size: 2rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.successAction {
+    width: 40%;
+}
+
+.successButton {
+    margin: 0 0 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    background-color: #000000;
+    color: #ffffff;
+    transition: all 0.3s ease-in;
+
+    &:hover {
+        background-color: #00e676;
+    }
+}
+
+.errorModal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 2rem;
+}
+
+.errorTitle {
+    color: #ff1744;
+    font-size: 3rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.errorMessage {
+    color: #ff1744;
+    font-size: 2rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.errorAction {
+    width: 40%;
+}
+
+.errorButton {
+    margin: 0 0 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    background-color: #000000;
+    color: #ffffff;
+    transition: all 0.3s ease-in;
+
+    &:hover {
+        background-color: #ff1744;
+    }
+}
