@@ -21,11 +21,10 @@ function Image() {
     const predictedImage = useSelector(
         (state) => state.prediction.predictedImage
     );
-    const retainedArea = useSelector((state) => state.prediction.retainedArea);
-    const destroyedArea = useSelector(
-        (state) => state.prediction.destroyedArea
-    );
 
+    const detectedObjects = useSelector(
+        (state) => state.prediction.detectedObjects
+    );
     const imageClickHandler = () => {
         imageRef.current.click();
     };
@@ -211,28 +210,30 @@ function Image() {
 
                 <div className={styles.reportTableCard}>
                     <h1 className={styles.reportTableHeading}>
-                        <span>Report</span>
+                        <span>{"Report"}</span>
                     </h1>
                     <table className={styles.reportTable}>
                         <thead>
                             <tr>
                                 <th className={styles.reportHeading}>
-                                    Retained Area (Pink)
+                                    {"Objects"}
                                 </th>
                                 <th className={styles.reportHeading}>
-                                    Destroyed Area (Red)
+                                    {"Confidence"}
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td className={styles.areas}>
-                                    {retainedArea.toFixed(2)} {"acres"}
-                                </td>
-                                <td className={styles.areas}>
-                                    {destroyedArea.toFixed(2)} {"acres"}
-                                </td>
-                            </tr>
+                            {detectedObjects.map((object, index) => (
+                                <tr key={index}>
+                                    <td className={styles.areas}>
+                                        {object.class}
+                                    </td>
+                                    <td className={styles.areas}>
+                                        {object.confidence} {"%"}
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                     <Button

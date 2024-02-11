@@ -4,8 +4,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { setCsrfToken } from "@/features/cookie/cookieSlice";
 import {
     setPredictedImage,
-    setRetainedArea,
-    setDestroyedArea,
+    setDetectedObjects,
 } from "@/features/prediction/predictionSlice";
 
 const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_URL;
@@ -35,8 +34,7 @@ export const processImage = createAsyncThunk(
                 const image = data.image;
 
                 dispatch(setPredictedImage(`data:image/jpeg;base64,${image}`));
-                dispatch(setRetainedArea(data.retainedArea));
-                dispatch(setDestroyedArea(data.destroyedArea));
+                dispatch(setDetectedObjects(data.objects));
 
                 return data;
             } else {
