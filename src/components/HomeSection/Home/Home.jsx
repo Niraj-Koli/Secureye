@@ -9,6 +9,7 @@ import Model from "@/components/HomeSection/Model/Model";
 import Slider from "@/components/HomeSection/Slider/Slider";
 import Features from "@/components/HomeSection/Features/Features";
 import About from "@/components/HomeSection/About/About";
+// import Footer from "@/components/Elementals/Footer/Footer";
 
 function Home() {
     return (
@@ -59,6 +60,10 @@ function Home() {
                 <div className={styles.aboutSection}>
                     <About />
                 </div>
+            </div>
+
+            <div className={styles.footerSection}>
+                {/* <Footer /> */}
             </div>
         </>
     );

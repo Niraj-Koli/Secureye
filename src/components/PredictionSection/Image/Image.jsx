@@ -136,7 +136,7 @@ function Image() {
 
     return (
         <>
-            <div className={styles.predictorContainer}>
+            <div className={styles.imageContainer}>
                 <Navbar />
 
                 <div className={styles.uploadButtonCard}>

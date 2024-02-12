@@ -1,0 +1,74 @@
+.footerContainer {
+    background: #1e1f22;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 15rem;
+    padding: 2.5rem 7rem 3rem 0;
+}
+
+.socialHeading,
+.contactsHeading,
+.navigateHeading {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0 0 1rem;
+    font-size: 3rem;
+    color: #ffffff;
+}
+
+.logos {
+    width: 3rem;
+    margin: 0 0.5rem;
+    font-size: 3rem;
+}
+
+.description {
+    padding: 1rem 0;
+    font-size: 1.5rem;
+    color: #ffffff;
+}
+
+.socials {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3rem;
+    margin: 1rem 0 0;
+}
+
+.socialDetail {
+    border-radius: 1.3rem;
+    padding: 0.7rem;
+    color: #1e1f22;
+    background: #ffffff;
+}
+
+.socialDetail:hover {
+    border-radius: 1.3rem;
+    padding: 0.7rem;
+    background: #00ffbb;
+    color: #000000;
+}
+
+.socialIcon {
+    font-size: 3.5rem;
+}
+
+.contactDetail,
+.navigationLinks {
+    color: #ffffff;
+    font-size: 1.7rem;
+    padding: 1rem 0;
+}
+
+.contactIcons,
+.navigatelink {
+    margin: 0 1rem 0 0;
+    font-size: 1.5rem;
+}
+
+.navigateLink {
+    color: #ffffff;
+}
