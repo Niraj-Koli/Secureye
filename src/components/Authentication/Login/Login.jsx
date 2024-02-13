@@ -229,7 +229,11 @@ function Login() {
 
                         <div className={styles.loginButtonContainer}>
                             {isLoading ? (
-                                <CircularProgress size={50} color="inherit" />
+                                <CircularProgress
+                                    size={55}
+                                    color="inherit"
+                                    sx={{ margin: "1rem" }}
+                                />
                             ) : (
                                 <Button
                                     type="submit"

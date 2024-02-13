@@ -16,6 +16,8 @@
         "@mui/material": "^5.15.7",
         "@reduxjs/toolkit": "^2.1.0",
         "axios": "^1.6.7",
+        "jspdf": "^2.5.1",
+        "jspdf-autotable": "^3.8.2",
         "react": "^18.2.0",
         "react-compare-slider": "^3.0.1",
         "react-dom": "^18.2.0",
