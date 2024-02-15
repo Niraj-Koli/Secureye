@@ -165,7 +165,7 @@ function Reset() {
                         <div className={styles.resetButtonContainer}>
                             {isLoading ? (
                                 <CircularProgress
-                                    size={55}
+                             size={52}
                                     color="inherit"
                                     sx={{ margin: "1rem" }}
                                 />

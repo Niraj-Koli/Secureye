@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 import { useDispatch } from "react-redux";
 
 import { verifyAuthentication, fetchUser } from "@/features/auth/authActions";
-import { resetPrediction } from "@/features/prediction/predictionSlice";
+import { resetPrediction } from "@/features/image/imageSlice";
 
 function Layout({ title, children }) {
     const dispatch = useDispatch();

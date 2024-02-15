@@ -5,13 +5,16 @@ import { setCsrfToken } from "@/features/cookie/cookieSlice";
 import {
     setPredictedImage,
     setDetectedObjects,
-} from "@/features/prediction/predictionSlice";
+} from "@/features/image/imageSlice";
 
 const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_URL;
 
 export const processImage = createAsyncThunk(
-    "prediction/processImage",
-    async (formState, { dispatch }) => {
+    "image/processImage",
+    async (image, { dispatch }) => {
+        const formData = new FormData();
+        formData.append("image", image);
+
         const config = {
             headers: {
                 "Content-Type": "multipart/form-data",
@@ -21,7 +24,7 @@ export const processImage = createAsyncThunk(
         try {
             const response = await axios.post(
                 `${API_BASE_URL}/prediction/image/`,
-                formState,
+                formData,
                 config
             );
 

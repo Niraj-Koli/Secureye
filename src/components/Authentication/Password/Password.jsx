@@ -274,7 +274,7 @@ function Password() {
                         <div className={styles.passwordButtonContainer}>
                             {isLoading ? (
                                 <CircularProgress
-                                    size={55}
+                                     size={52}
                                     color="inherit"
                                     sx={{ margin: "1rem" }}
                                 />

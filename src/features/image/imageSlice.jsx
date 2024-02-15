@@ -5,8 +5,8 @@ const initialState = {
     detectedObjects: [],
 };
 
-const predictionSlice = createSlice({
-    name: "prediction",
+const imageSlice = createSlice({
+    name: "image",
     initialState,
     reducers: {
         setPredictedImage: (state, action) => {
@@ -23,5 +23,5 @@ const predictionSlice = createSlice({
 });
 
 export const { setPredictedImage, setDetectedObjects, resetPrediction } =
-    predictionSlice.actions;
-export default predictionSlice.reducer;
+    imageSlice.actions;
+export default imageSlice.reducer;

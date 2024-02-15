@@ -249,7 +249,7 @@ function Signup() {
                         <div className={styles.signupButtonContainer}>
                             {isLoading ? (
                                 <CircularProgress
-                                    size={55}
+                                    size={52}
                                     color="inherit"
                                     sx={{ margin: "1rem" }}
                                 />

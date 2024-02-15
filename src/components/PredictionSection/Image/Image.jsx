@@ -6,7 +6,7 @@ import { Button, CircularProgress } from "@mui/material";
 
 import styles from "./Image.module.css";
 
-import { processImage } from "@/features/prediction/predictionActions";
+import { processImage } from "@/features/image/imageActions";
 
 import Navbar from "@/components/Elementals/Navbar/Navbar";
 
@@ -19,13 +19,10 @@ function Image() {
 
     const dispatch = useDispatch();
 
-    const predictedImage = useSelector(
-        (state) => state.prediction.predictedImage
-    );
+    const predictedImage = useSelector((state) => state.image.predictedImage);
 
-    const detectedObjects = useSelector(
-        (state) => state.prediction.detectedObjects
-    );
+    const detectedObjects = useSelector((state) => state.image.detectedObjects);
+
     const imageClickHandler = () => {
         imageRef.current.click();
     };
@@ -39,10 +36,7 @@ function Image() {
         setIsLoading(true);
 
         try {
-            const formData = new FormData();
-            formData.append("image", originalImage);
-
-            await dispatch(processImage(formData));
+            await dispatch(processImage(originalImage));
 
             setAllowPrintPdf(true);
         } catch (error) {
