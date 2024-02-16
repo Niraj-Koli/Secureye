@@ -46,7 +46,7 @@
     max-width: 100rem;
     height: 55rem;
     max-height: 100%;
-    padding: 0.8rem;
+    padding: 0.7rem;
     background-color: #ffffff;
 }
 
@@ -58,6 +58,13 @@
     background-size: cover;
     background-position: center;
 }
+
+.renderedVideo {
+    width: 100%;
+    height: 100%;
+    border-radius: 1.6rem;
+}
+
 
 .predictionButtonCard {
     display: flex;

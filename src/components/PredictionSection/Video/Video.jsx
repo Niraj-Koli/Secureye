@@ -9,6 +9,7 @@ function Video() {
     const videoRef = useRef(null);
 
     const [isLoading, setIsLoading] = useState(false);
+    const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
     const [originalVideo, setOriginalVideo] = useState(null);
     const [allowPrintPdf, setAllowPrintPdf] = useState(false);
 
@@ -30,7 +31,15 @@ function Video() {
         }
     };
 
-    const downloadPdfHandler = async () => {};
+    const downloadPdfHandler = async () => {
+        try {
+            setIsGeneratingPdf(true);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsGeneratingPdf(false);
+        }
+    };
 
     return (
         <>
@@ -60,7 +69,7 @@ function Video() {
                                 <video
                                     src={URL.createObjectURL(originalVideo)}
                                     controls
-                                    className={styles.videoTemplate}
+                                    className={styles.renderedVideo}
                                 />
                             )}
                         </div>
@@ -91,23 +100,33 @@ function Video() {
                     <h1 className={styles.reportTableHeading}>
                         <span>{"Report"}</span>
                     </h1>
+
                     <table className={styles.reportTable}>
                         <thead></thead>
                         <tbody></tbody>
                     </table>
-                    <Button
-                        variant="contained"
-                        size="large"
-                        fullWidth
-                        className={styles.reportDownloadButton}
-                        disabled={!allowPrintPdf}
-                        onClick={downloadPdfHandler}>
-                        {"Print"}
-                    </Button>
+
+                    {isGeneratingPdf ? (
+                        <CircularProgress
+                            size={50}
+                            color="inherit"
+                            sx={{ marginBottom: "2.2rem" }}
+                        />
+                    ) : (
+                        <Button
+                            variant="contained"
+                            size="large"
+                            fullWidth
+                            className={styles.reportDownloadButton}
+                            disabled={!allowPrintPdf}
+                            onClick={downloadPdfHandler}>
+                            {"Print"}
+                        </Button>
+                    )}
                 </div>
             </div>
 
-            <div style={{ height: "100rem" }} />
+            <div style={{ height: "50rem" }} />
         </>
     );
 }

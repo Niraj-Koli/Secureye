@@ -14,6 +14,7 @@ function Image() {
     const imageRef = useRef(null);
 
     const [isLoading, setIsLoading] = useState(false);
+    const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
     const [originalImage, setOriginalImage] = useState(null);
     const [allowPrintPdf, setAllowPrintPdf] = useState(false);
 
@@ -47,117 +48,123 @@ function Image() {
     };
 
     const downloadPdfHandler = async () => {
-        const pdf = new jsPDF();
-        const imgHeight = 110;
-        const imgWidth = 165;
+        try {
+            const pdf = new jsPDF();
+            const imgHeight = 110;
+            const imgWidth = 165;
 
-        const originalImageData = URL.createObjectURL(originalImage);
+            const originalImageData = URL.createObjectURL(originalImage);
 
-        const predictedImageBlob = await fetch(predictedImage).then((res) =>
-            res.blob()
-        );
+            const predictedImageBlob = await fetch(predictedImage).then((res) =>
+                res.blob()
+            );
 
-        const predictedImageData = URL.createObjectURL(predictedImageBlob);
+            const predictedImageData = URL.createObjectURL(predictedImageBlob);
 
-        pdf.setLineDash([]);
-        pdf.line(10, 6, 200, 6);
+            pdf.setLineDash([]);
+            pdf.line(10, 6, 200, 6);
 
-        pdf.setFontSize(22);
-        pdf.text("Prediction Report", 105, 15, {
-            align: "center",
-        });
+            pdf.setFontSize(22);
+            pdf.text("Prediction Report", 105, 15, {
+                align: "center",
+            });
 
-        pdf.setLineDash([]);
-        pdf.line(10, 19, 200, 19);
+            pdf.setLineDash([]);
+            pdf.line(10, 19, 200, 19);
 
-        pdf.setFontSize(18);
-        pdf.text("Original Image", 105, 27, { align: "center" });
-        pdf.addImage(
-            originalImageData,
-            "JPEG",
-            105 - imgWidth / 2,
-            32,
-            imgWidth,
-            imgHeight
-        );
+            pdf.setFontSize(18);
+            pdf.text("Original Image", 105, 27, { align: "center" });
+            pdf.addImage(
+                originalImageData,
+                "JPEG",
+                105 - imgWidth / 2,
+                32,
+                imgWidth,
+                imgHeight
+            );
 
-        pdf.setLineDash([]);
-        pdf.line(10, 148, 200, 148);
+            pdf.setLineDash([]);
+            pdf.line(10, 148, 200, 148);
 
-        pdf.text("Predicted Image", 105, 157, { align: "center" });
-        pdf.addImage(
-            predictedImageData,
-            "JPEG",
-            105 - imgWidth / 2,
-            162,
-            imgWidth,
-            imgHeight
-        );
+            pdf.text("Predicted Image", 105, 157, { align: "center" });
+            pdf.addImage(
+                predictedImageData,
+                "JPEG",
+                105 - imgWidth / 2,
+                162,
+                imgWidth,
+                imgHeight
+            );
 
-        pdf.setLineDash([]);
-        pdf.line(10, 278, 200, 278);
+            pdf.setLineDash([]);
+            pdf.line(10, 278, 200, 278);
 
-        pdf.addPage();
+            pdf.addPage();
 
-        pdf.setLineDash([]);
-        pdf.line(10, 7, 200, 7);
+            pdf.setLineDash([]);
+            pdf.line(10, 7, 200, 7);
 
-        pdf.setFontSize(22);
-        pdf.text("Prediction Analysis", 105, 16, {
-            align: "center",
-        });
+            pdf.setFontSize(22);
+            pdf.text("Prediction Analysis", 105, 16, {
+                align: "center",
+            });
 
-        pdf.setLineDash([]);
-        pdf.line(10, 20, 200, 20);
+            pdf.setLineDash([]);
+            pdf.line(10, 20, 200, 20);
 
-        pdf.setFontSize(18);
+            pdf.setFontSize(18);
 
-        const tableColumns = ["Objects", "Confidence"];
-        const tableRows = detectedObjects.map((object) => [
-            object.class,
-            `${object.confidence} %`,
-        ]);
+            const tableColumns = ["Objects", "Confidence"];
+            const tableRows = detectedObjects.map((object) => [
+                object.class,
+                `${object.confidence} %`,
+            ]);
 
-        pdf.autoTable({
-            head: [tableColumns],
-            body: tableRows,
-            startY: 28,
-            theme: "grid",
-            styles: {
-                cellPadding: 4,
-                fontSize: 13,
-                textColor: [0, 0, 0],
-                fontStyle: "normal",
-                valign: "middle",
-                halign: "center",
-                minCellWidth: 50,
-            },
-            headStyles: {
-                fontSize: 16,
-                fillColor: [242, 242, 242],
-                textColor: [0, 0, 0],
-                valign: "middle",
-                halign: "center",
-                minCellWidth: 50,
-            },
-            margin: { left: 20, right: 20 },
-        });
+            pdf.autoTable({
+                head: [tableColumns],
+                body: tableRows,
+                startY: 28,
+                theme: "grid",
+                styles: {
+                    cellPadding: 4,
+                    fontSize: 13,
+                    textColor: [0, 0, 0],
+                    fontStyle: "normal",
+                    valign: "middle",
+                    halign: "center",
+                    minCellWidth: 50,
+                },
+                headStyles: {
+                    fontSize: 16,
+                    fillColor: [242, 242, 242],
+                    textColor: [0, 0, 0],
+                    valign: "middle",
+                    halign: "center",
+                    minCellWidth: 50,
+                },
+                margin: { left: 20, right: 20 },
+            });
 
-        pdf.setFontSize(16);
+            pdf.setFontSize(16);
 
-        pdf.setLineDash([]);
-        pdf.line(10, 278, 200, 278);
+            pdf.setLineDash([]);
+            pdf.line(10, 278, 200, 278);
 
-        pdf.setFontSize(20);
-        pdf.setTextColor(0, 0, 0);
-        pdf.text("© Guardinger Technologies", 105, 287, {
-            align: "center",
-        });
+            pdf.setFontSize(20);
+            pdf.setTextColor(0, 0, 0);
+            pdf.text("© Guardinger Technologies", 105, 287, {
+                align: "center",
+            });
 
-        pdf.setLineDash([]);
-        pdf.line(10, 292, 200, 292);
+            pdf.setLineDash([]);
+            pdf.line(10, 292, 200, 292);
 
-        pdf.save("image_prediction_report.pdf");
+            pdf.save("image_prediction_report.pdf");
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsGeneratingPdf(false);
+        }
     };
 
     return (
@@ -262,15 +269,24 @@ function Image() {
                             ))}
                         </tbody>
                     </table>
-                    <Button
-                        variant="contained"
-                        size="large"
-                        fullWidth
-                        className={styles.reportDownloadButton}
-                        disabled={!allowPrintPdf}
-                        onClick={downloadPdfHandler}>
-                        {"Print"}
-                    </Button>
+
+                    {isGeneratingPdf ? (
+                        <CircularProgress
+                            size={50}
+                            color="inherit"
+                            sx={{ marginBottom: "2.2rem" }}
+                        />
+                    ) : (
+                        <Button
+                            variant="contained"
+                            size="large"
+                            fullWidth
+                            className={styles.reportDownloadButton}
+                            disabled={!allowPrintPdf}
+                            onClick={downloadPdfHandler}>
+                            {"Print"}
+                        </Button>
+                    )}
                 </div>
             </div>
         </>
