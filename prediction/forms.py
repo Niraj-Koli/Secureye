@@ -1,10 +1,10 @@
 from django import forms
-from .models import ObjectDetection
+from .models import ImageDetectionModel
 
 
-class ObjectDetectionForm(forms.ModelForm):
+class ImageDetectionForm(forms.ModelForm):
     class Meta:
-        model = ObjectDetection
+        model = ImageDetectionModel
         fields = ["image"]
 
 

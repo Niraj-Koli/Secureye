@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib import admin
 
 
-class ObjectDetection(models.Model):
+class ImageDetectionModel(models.Model):
     id = models.AutoField(primary_key=True)
     record_date = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to="images/")
@@ -26,5 +26,5 @@ class PredictedImageInline(admin.TabularInline):
     model = PredictedImage
 
 
-class ObjectDetectionAdmin(admin.ModelAdmin):
+class ImageDetectionAdmin(admin.ModelAdmin):
     inlines = [PredictedImageInline]

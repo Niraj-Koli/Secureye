@@ -21,7 +21,6 @@ function Image() {
     const dispatch = useDispatch();
 
     const predictedImage = useSelector((state) => state.image.predictedImage);
-
     const detectedObjects = useSelector((state) => state.image.detectedObjects);
 
     const imageClickHandler = () => {
@@ -114,8 +113,9 @@ function Image() {
 
             pdf.setFontSize(18);
 
-            const tableColumns = ["Objects", "Confidence"];
-            const tableRows = detectedObjects.map((object) => [
+            const tableColumns = ["No.", "Objects", "Confidence"];
+            const tableRows = detectedObjects.map((object, index) => [
+                index + 1,
                 object.class,
                 `${object.confidence} %`,
             ]);
@@ -126,21 +126,19 @@ function Image() {
                 startY: 28,
                 theme: "grid",
                 styles: {
-                    cellPadding: 4,
+                    cellPadding: 2,
                     fontSize: 13,
                     textColor: [0, 0, 0],
                     fontStyle: "normal",
                     valign: "middle",
                     halign: "center",
-                    minCellWidth: 50,
                 },
                 headStyles: {
-                    fontSize: 16,
+                    fontSize: 15,
                     fillColor: [242, 242, 242],
                     textColor: [0, 0, 0],
                     valign: "middle",
                     halign: "center",
-                    minCellWidth: 50,
                 },
                 margin: { left: 20, right: 20 },
             });
@@ -249,6 +247,9 @@ function Image() {
                         <thead>
                             <tr>
                                 <th className={styles.reportHeading}>
+                                    {"No."}
+                                </th>
+                                <th className={styles.reportHeading}>
                                     {"Objects"}
                                 </th>
                                 <th className={styles.reportHeading}>
@@ -258,11 +259,14 @@ function Image() {
                         </thead>
                         <tbody>
                             {detectedObjects.map((object, index) => (
-                                <tr key={index}>
-                                    <td className={styles.areas}>
+                                <tr key={index + 1}>
+                                    <td className={styles.tableCells}>
+                                        {index + 1}
+                                    </td>
+                                    <td className={styles.tableCells}>
                                         {object.class}
                                     </td>
-                                    <td className={styles.areas}>
+                                    <td className={styles.tableCells}>
                                         {object.confidence} {"%"}
                                     </td>
                                 </tr>

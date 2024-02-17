@@ -127,7 +127,6 @@
 .reportTable {
     width: 85%;
     border-radius: 1.6rem;
-    border-spacing: 2rem 0;
     border-collapse: separate;
     margin: 3rem;
 }
@@ -135,18 +134,17 @@
 .reportHeading {
     font-size: 2rem;
     font-weight: 600;
-    width: 50%;
     text-align: center;
-    padding: 1.2rem;
+    padding: 1.2rem 0;
     border: 0.1rem solid #dddddd;
     background-color: #f2f2f2;
 }
 
-.areas {
+.tableCells {
     font-size: 2rem;
     font-weight: 600;
     text-align: center;
-    padding: 1.2rem;
+    padding: 0.8rem;
     border: 0.1rem solid #dddddd;
     background-color: #ffffff;
 }

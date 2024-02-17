@@ -1,11 +1,15 @@
-from ultralytics import YOLO
-from django.views.decorators.csrf import csrf_exempt
-from PIL import Image
-from .forms import ObjectDetectionForm
-from .models import PredictedImage
-from django.core.files.base import ContentFile
-from django.http import JsonResponse
+import cv2
 import base64
+import json
+import tempfile
+from django.http import JsonResponse, StreamingHttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.core.files.base import ContentFile
+from django.utils.translation import gettext_lazy as _
+from ultralytics import YOLO
+from PIL import Image
+from .models import PredictedImage
+from .forms import ImageDetectionForm, VideoDetectionForm
 
 MODEL_PATH = "D:\\Niru\\Coding\\Projects\\Important\\Secureye\\1\\Secureye\\prediction\\mlModel\\best.pt"
 
@@ -22,7 +26,7 @@ def imagePrediction(request):
     predicted_image = None
 
     if request.method == "POST":
-        form = ObjectDetectionForm(request.POST, request.FILES)
+        form = ImageDetectionForm(request.POST, request.FILES)
 
         if form.is_valid():
             image = form.save()
@@ -66,3 +70,81 @@ def imagePrediction(request):
             return JsonResponse({"error": "Invalid form data"}, status=400)
 
     return JsonResponse({"error": "Invalid HTTP method"}, status=405)
+
+
+class VideoProcessor:
+    def __init__(self):
+        self.temp_video_path = None
+
+    def process_temp_video(self, video_file):
+        with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as temp_video:
+            temp_video.write(video_file.read())
+            self.temp_video_path = temp_video.name
+
+    def predict_frames(self):
+        cap = cv2.VideoCapture(self.temp_video_path)
+
+        if not cap.isOpened():
+            print("Error: Could not open video file.")
+            return
+
+        frame_counter = 0
+        while True:
+            success, frame = cap.read()
+            if success:
+                results = model(frame, conf=0.5)
+                if results:
+                    annotated_frame = results[0].plot()
+                    _, buffer = cv2.imencode(".jpg", annotated_frame)
+                    frame_bytes = buffer.tobytes()
+                    base64_data = base64.b64encode(frame_bytes).decode("utf-8")
+
+                    frame_path = f"/predicted_frames/frame_{frame_counter}.jpg"
+
+                    yield f'data: {json.dumps({"image": base64_data, "path": frame_path})}\n\n'
+                    print(f"Sent frame {frame_counter}")
+                    frame_counter += 1
+                else:
+                    if frame_counter == cap.get(cv2.CAP_PROP_FRAME_COUNT):
+                        print("End of video.")
+                    else:
+                        print("Error: Failed to read frame from video.")
+                    break
+
+        cap.release()
+
+
+video_processor = VideoProcessor()
+
+
+@csrf_exempt
+def videoPrediction(request):
+    try:
+        if request.method == "POST":
+            form = VideoDetectionForm(request.POST, request.FILES)
+            if form.is_valid():
+                video_file = form.cleaned_data["video"]
+                video_processor.process_temp_video(video_file)
+                return JsonResponse({"success": "Video processing started."})
+            else:
+                return JsonResponse({"error": "Invalid form data"}, status=400)
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+    except Exception as e:
+        print(f"Error in videoFormInput: {str(e)}")
+        return JsonResponse({"error": "Internal server error"}, status=500)
+
+
+@csrf_exempt
+def videoSSEFrames(request):
+    try:
+        response = StreamingHttpResponse(
+            video_processor.predict_frames(), content_type="text/event-stream"
+        )
+        response["Cache-Control"] = "no-cache"
+        response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "*"
+        response["Access-Control-Allow-Headers"] = "*"
+        return response
+    except Exception as e:
+        print(f"Error in sendingFrames: {str(e)}")
+        return JsonResponse({"error": "Internal server error"}, status=500)

@@ -1,6 +1,6 @@
 from django.contrib import admin
-from prediction.models import ObjectDetection, PredictedImage
+from prediction.models import ImageDetectionModel, PredictedImage
 
 
-admin.site.register(ObjectDetection)
+admin.site.register(ImageDetectionModel)
 admin.site.register(PredictedImage)

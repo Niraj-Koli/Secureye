@@ -1,6 +1,5 @@
 import "vite/modulepreload-polyfill";
 
-import { useSelector } from "react-redux";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import HomePage from "./pages/HomePage";
@@ -15,31 +14,14 @@ import ActivationPage from "./pages/ActivationPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
-    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-
     return (
         <>
             <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="home" element={<Navigate to="/" />} />
-                <Route
-                    path="image"
-                    element={
-                        isAuthenticated ? <ImagePage /> : <Navigate to="/" />
-                    }
-                />
-                <Route
-                    path="video"
-                    element={
-                        isAuthenticated ? <VideoPage /> : <Navigate to="/" />
-                    }
-                />
-                <Route
-                    path="webcam"
-                    element={
-                        isAuthenticated ? <WebcamPage /> : <Navigate to="/" />
-                    }
-                />
+                <Route path="image" element={<ImagePage />} />
+                <Route path="video" element={<VideoPage />} />
+                <Route path="webcam" element={<WebcamPage />} />
                 <Route path="login" element={<LoginPage />} />
                 <Route path="signup" element={<SignupPage />} />
                 <Route path="reset-password" element={<ResetPage />} />

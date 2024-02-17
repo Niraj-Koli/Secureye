@@ -31,8 +31,9 @@
 
 .predictionCards {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
     gap: 40px;
 }
 
@@ -43,14 +44,18 @@
     box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
     border-radius: 2rem;
     width: 100%;
-    max-width: 100rem;
-    height: 55rem;
+    max-width: 110rem;
+    height: 58rem;
     max-height: 100%;
     padding: 0.7rem;
     background-color: #ffffff;
 }
 
 .videoTemplate {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     height: 100%;
     border-radius: 1.6rem;
@@ -59,12 +64,11 @@
     background-position: center;
 }
 
-.renderedVideo {
-    width: 100%;
+.renderedVideoFrame {
+    /* width: 100%; */
     height: 100%;
     border-radius: 1.6rem;
 }
-
 
 .predictionButtonCard {
     display: flex;
