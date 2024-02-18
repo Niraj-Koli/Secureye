@@ -16,6 +16,21 @@ virtualenv env_name
 env_name\scripts\activate
 ```
 
+### Make a directory name media in root and subdirectories in media named images and predicted_images
+
+```
+mkdir media
+```
+```
+cd media
+```
+```
+mkdir images
+```
+```
+mkdir predicted_images
+```
+
 ### Make and configure a .env File
 
 ```env
