@@ -6,6 +6,8 @@ import { Button, CircularProgress } from "@mui/material";
 
 import styles from "./Image.module.css";
 
+import { resetImagePrediction } from "@/features/image/imageSlice";
+
 import { processImage } from "@/features/image/imageActions";
 
 import Navbar from "@/components/Elementals/Navbar/Navbar";
@@ -15,13 +17,16 @@ function Image() {
 
     const [isLoading, setIsLoading] = useState(false);
     const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+    const [isPredicting, setIsPredicting] = useState(false);
     const [originalImage, setOriginalImage] = useState(null);
     const [allowPrintPdf, setAllowPrintPdf] = useState(false);
 
     const dispatch = useDispatch();
 
     const predictedImage = useSelector((state) => state.image.predictedImage);
-    const detectedObjects = useSelector((state) => state.image.detectedObjects);
+    const imageDetectedObjects = useSelector(
+        (state) => state.image.imageDetectedObjects
+    );
 
     const imageClickHandler = () => {
         imageRef.current.click();
@@ -34,6 +39,7 @@ function Image() {
 
     const imageSubmitHandler = async () => {
         setIsLoading(true);
+        setIsPredicting(true);
 
         try {
             await dispatch(processImage(originalImage));
@@ -44,6 +50,13 @@ function Image() {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const removeImagesHandler = () => {
+        dispatch(resetImagePrediction());
+        setOriginalImage(null);
+        setIsPredicting(false);
+        setAllowPrintPdf(false);
     };
 
     const downloadPdfHandler = async () => {
@@ -114,7 +127,7 @@ function Image() {
             pdf.setFontSize(18);
 
             const tableColumns = ["No.", "Objects", "Confidence"];
-            const tableRows = detectedObjects.map((object, index) => [
+            const tableRows = imageDetectedObjects.map((object, index) => [
                 index + 1,
                 object.class,
                 `${object.confidence} %`,
@@ -175,13 +188,15 @@ function Image() {
                         variant="contained"
                         size="large"
                         component="label"
-                        className={styles.uploadButton}>
+                        className={styles.uploadButton}
+                        disabled={isPredicting || originalImage}>
                         {"Image"}
                         <input
                             type="file"
                             ref={imageRef}
                             onChange={imageChangeHandler}
                             hidden
+                            accept="image/*"
                         />
                     </Button>
                 </div>
@@ -193,6 +208,7 @@ function Image() {
                             ref={imageRef}
                             style={{ display: "none" }}
                             onChange={imageChangeHandler}
+                            accept="image/*"
                         />
                         <div
                             className={styles.imageTemplate}
@@ -219,24 +235,38 @@ function Image() {
                     </div>
                 </div>
 
-                <div className={styles.predictionButtonCard}>
-                    {isLoading ? (
-                        <CircularProgress
-                            size={72}
-                            color="inherit"
-                            sx={{ margin: "1rem" }}
-                        />
-                    ) : (
+                <div className={styles.predictionButtonsActions}>
+                    <div className={styles.predictionButtonCard}>
+                        {isLoading ? (
+                            <CircularProgress
+                                size={72}
+                                color="inherit"
+                                sx={{ margin: "1rem" }}
+                            />
+                        ) : (
+                            <Button
+                                variant="contained"
+                                size="large"
+                                fullWidth
+                                className={styles.predictButton}
+                                onClick={imageSubmitHandler}
+                                disabled={!originalImage || isLoading}>
+                                {"Predict"}
+                            </Button>
+                        )}
+                    </div>
+
+                    <div className={styles.predictionButtonCard}>
                         <Button
                             variant="contained"
                             size="large"
                             fullWidth
                             className={styles.predictButton}
-                            onClick={imageSubmitHandler}
-                            disabled={isLoading}>
-                            {"Predict"}
+                            onClick={removeImagesHandler}
+                            disabled={!originalImage}>
+                            {"Reset"}
                         </Button>
-                    )}
+                    </div>
                 </div>
 
                 <div className={styles.reportTableCard}>
@@ -258,7 +288,7 @@ function Image() {
                             </tr>
                         </thead>
                         <tbody>
-                            {detectedObjects.map((object, index) => (
+                            {imageDetectedObjects.map((object, index) => (
                                 <tr key={index + 1}>
                                     <td className={styles.tableCells}>
                                         {index + 1}

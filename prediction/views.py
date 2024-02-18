@@ -89,6 +89,7 @@ class VideoProcessor:
             return
 
         frame_counter = 0
+
         while True:
             success, frame = cap.read()
             if success:

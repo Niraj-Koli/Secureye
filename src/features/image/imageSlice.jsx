@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     predictedImage: null,
-    detectedObjects: [],
+    imageDetectedObjects: [],
 };
 
 const imageSlice = createSlice({
@@ -12,16 +12,19 @@ const imageSlice = createSlice({
         setPredictedImage: (state, action) => {
             state.predictedImage = action.payload;
         },
-        setDetectedObjects: (state, action) => {
-            state.detectedObjects = action.payload;
+        setImageDetectionObjects: (state, action) => {
+            state.imageDetectedObjects = action.payload;
         },
-        resetPrediction: (state) => {
+        resetImagePrediction: (state) => {
             state.predictedImage = null;
-            state.detectedObjects = [];
+            state.imageDetectedObjects = [];
         },
     },
 });
 
-export const { setPredictedImage, setDetectedObjects, resetPrediction } =
-    imageSlice.actions;
+export const {
+    setPredictedImage,
+    setImageDetectionObjects,
+    resetImagePrediction,
+} = imageSlice.actions;
 export default imageSlice.reducer;
