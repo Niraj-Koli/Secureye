@@ -11,6 +11,7 @@ import {
 } from "@/features/video/videoActions";
 
 import Navbar from "@/components/Elementals/Navbar/Navbar";
+import ServerSentEvents from "@/components/PredictionSection/ServerSentEvents/ServerSentEvents";
 
 function Video() {
     const videoRef = useRef(null);
@@ -26,7 +27,6 @@ function Video() {
     const dispatch = useDispatch();
 
     const eventSource = useSelector((state) => state.video.eventSource);
-    const videoFrames = useSelector((state) => state.video.videoFrames);
 
     useEffect(() => {
         if (eventSource) {
@@ -109,7 +109,7 @@ function Video() {
                 </div>
 
                 <div className={styles.predictionCards}>
-                    {/* <div className={styles.videoCard}>
+                    <div className={styles.videoCard}>
                         <div className={styles.videoTemplate}>
                             {originalVideo && (
                                 <video
@@ -119,19 +119,8 @@ function Video() {
                                 />
                             )}
                         </div>
-                    </div> */}
-                    <div className={styles.videoCard}>
-                        <div className={styles.videoTemplate}>
-                            {videoFrames.map((frame, index) => (
-                                <img
-                                    key={index}
-                                    src={`data:image/jpeg;base64,${frame}`}
-                                    alt="Video Frames"
-                                    className={styles.renderedVideoFrame}
-                                />
-                            ))}
-                        </div>
                     </div>
+                    <ServerSentEvents />
                 </div>
 
                 <div className={styles.predictionButtonsActions}>
@@ -162,7 +151,7 @@ function Video() {
                             fullWidth
                             className={styles.predictButton}
                             onClick={closeSseHandler}
-                            disabled={sseStarted}>
+                            disabled={sseStarted && !originalVideo}>
                             {"Stop"}
                         </Button>
                     </div>
