@@ -3,10 +3,10 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import { setCsrfToken } from "@/features/cookie/cookieSlice";
 import {
-    setEventSource,
+    setVideoEventSource,
     setVideoFrames,
     resetVideoFrames,
-    closeEventSource,
+    closeVideoEventSource,
 } from "@/features/video/videoSlice";
 
 const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_URL;
@@ -47,8 +47,8 @@ export const processVideo = createAsyncThunk(
     }
 );
 
-export const startServerSentEventSource = createAsyncThunk(
-    "video/startEventSource",
+export const startVideoServerSentEventSource = createAsyncThunk(
+    "video/startVideoServerSentEventSource",
     async (_, { dispatch }) => {
         const eventSource = new EventSource(
             `${API_BASE_URL}/prediction/videoFrames/`
@@ -65,14 +65,14 @@ export const startServerSentEventSource = createAsyncThunk(
             console.log("Event source error:", error);
         };
 
-        dispatch(setEventSource(eventSource));
+        dispatch(setVideoEventSource(eventSource));
     }
 );
 
-export const closeServerSendEventSource = createAsyncThunk(
-    "video/closeEventSource",
+export const closeVideoServerSendEventSource = createAsyncThunk(
+    "video/closeVideoServerSendEventSource",
     async (_, { dispatch }) => {
         dispatch(resetVideoFrames());
-        dispatch(closeEventSource());
+        dispatch(closeVideoEventSource());
     }
 );

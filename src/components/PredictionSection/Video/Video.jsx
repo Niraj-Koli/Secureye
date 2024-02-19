@@ -5,13 +5,13 @@ import { Button, CircularProgress } from "@mui/material";
 import styles from "./Video.module.css";
 
 import {
-    closeServerSendEventSource,
+    closeVideoServerSendEventSource,
     processVideo,
-    startServerSentEventSource,
+    startVideoServerSentEventSource,
 } from "@/features/video/videoActions";
 
 import Navbar from "@/components/Elementals/Navbar/Navbar";
-import ServerSentEvents from "@/components/PredictionSection/ServerSentEvents/ServerSentEvents";
+import VideoServerSentEvents from "@/components/PredictionSection/VideoServerSentEvents/VideoServerSentEvents";
 
 function Video() {
     const videoRef = useRef(null);
@@ -26,16 +26,16 @@ function Video() {
 
     const dispatch = useDispatch();
 
-    const eventSource = useSelector((state) => state.video.eventSource);
+    const videoEventSource = useSelector((state) => state.video.videoEventSource);
 
     useEffect(() => {
-        if (eventSource) {
+        if (videoEventSource) {
             setSseStarted(false);
             return () => {
-                dispatch(closeServerSendEventSource);
+                dispatch(closeVideoServerSendEventSource);
             };
         }
-    }, [dispatch, eventSource]);
+    }, [dispatch, videoEventSource]);
 
     const videoChangeHandler = (event) => {
         const file = event.target.files[0];
@@ -48,15 +48,15 @@ function Video() {
         setIsPredicting(true);
 
         try {
-            if (eventSource) {
-                dispatch(closeServerSendEventSource());
+            if (videoEventSource) {
+                dispatch(closeVideoServerSendEventSource());
             }
 
             await dispatch(processVideo(originalVideo));
 
             await new Promise((resolve) => setTimeout(resolve, 5000));
 
-            await dispatch(startServerSentEventSource());
+            await dispatch(startVideoServerSentEventSource());
 
             setShowSpinner(false);
 
@@ -68,8 +68,8 @@ function Video() {
         }
     };
 
-    const closeSseHandler = () => {
-        dispatch(closeServerSendEventSource());
+    const videoResetHandler = () => {
+        dispatch(closeVideoServerSendEventSource());
         setOriginalVideo(null);
         setIsPredicting(false);
         setSseStarted(true);
@@ -120,7 +120,7 @@ function Video() {
                             )}
                         </div>
                     </div>
-                    <ServerSentEvents />
+                    <VideoServerSentEvents />
                 </div>
 
                 <div className={styles.predictionButtonsActions}>
@@ -150,9 +150,9 @@ function Video() {
                             size="large"
                             fullWidth
                             className={styles.predictButton}
-                            onClick={closeSseHandler}
+                            onClick={videoResetHandler}
                             disabled={sseStarted && !originalVideo}>
-                            {"Stop"}
+                            {"Reset"}
                         </Button>
                     </div>
                 </div>

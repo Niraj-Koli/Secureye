@@ -149,3 +149,43 @@ def videoSSEFrames(request):
     except Exception as e:
         print(f"Error in sendingFrames: {str(e)}")
         return JsonResponse({"error": "Internal server error"}, status=500)
+
+
+@csrf_exempt
+def webcamSSEFrames(request):
+    def event_stream():
+        cap = cv2.VideoCapture(0)
+
+        if not cap.isOpened():
+            print("Error: Could not open webcam.")
+            return
+
+        try:
+            frame_counter = 0
+            while True:
+                success, frame = cap.read()
+                if success:
+                    results = model(frame, conf=0.5)
+                    if results:
+                        annotated_frame = results[0].plot()
+                        _, buffer = cv2.imencode(".jpg", annotated_frame)
+                        frame_bytes = buffer.tobytes()
+                        base64_data = base64.b64encode(frame_bytes).decode("utf-8")
+
+                        # Generate a unique path for each frame
+                        frame_path = f"/predicted_frames/frame_{frame_counter}.jpg"
+
+                        # Send the frame data and path to the frontend through SSE
+                        yield f'data: {{ "image": "{base64_data}","path": "{frame_path}"}}\n\n'
+
+                        frame_counter += 1
+                else:
+                    print("Error: Failed to read frame from webcam.")
+                    break
+
+        except Exception as e:
+            print("Error in predictFrames:", str(e))
+        finally:
+            cap.release()
+
+    return StreamingHttpResponse(event_stream(), content_type="text/event-stream")

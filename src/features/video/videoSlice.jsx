@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     videoDetectedObjects: [],
-    eventSource: null,
+    videoEventSource: null,
     videoFrames: [],
 };
 
@@ -16,8 +16,8 @@ const videoSlice = createSlice({
         resetVideoPrediction: (state) => {
             state.videoDetectedObjects = [];
         },
-        setEventSource: (state, action) => {
-            state.eventSource = action.payload;
+        setVideoEventSource: (state, action) => {
+            state.videoEventSource = action.payload;
         },
         setVideoFrames: (state, action) => {
             state.videoFrames = action.payload;
@@ -25,10 +25,10 @@ const videoSlice = createSlice({
         resetVideoFrames: (state) => {
             state.videoFrames = [];
         },
-        closeEventSource: (state) => {
-            if (state.eventSource) {
-                state.eventSource.close();
-                state.eventSource = null;
+        closeVideoEventSource: (state) => {
+            if (state.videoEventSource) {
+                state.videoEventSource.close();
+                state.videoEventSource = null;
             }
         },
     },
@@ -37,9 +37,9 @@ const videoSlice = createSlice({
 export const {
     setVideoDetectedObjects,
     resetVideoPrediction,
-    setEventSource,
+    setVideoEventSource,
     setVideoFrames,
     resetVideoFrames,
-    closeEventSource,
+    closeVideoEventSource,
 } = videoSlice.actions;
 export default videoSlice.reducer;

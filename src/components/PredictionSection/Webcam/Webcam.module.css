@@ -1,0 +1,90 @@
+.predictionCards {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%, 2rem);
+}
+
+.predictionButtonsActions {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 5rem;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%, 6rem);
+}
+
+.predictionButtonCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
+    border-radius: 1.6rem;
+    width: 100%;
+    max-width: 40rem;
+    background-color: #ffffff;
+}
+
+.predictButton {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 2.5rem;
+    width: 80%;
+    border: none;
+    background-color: #000000;
+    color: #ffffff;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease-in;
+
+    &:hover {
+        background-color: #ff5c33;
+    }
+}
+
+.errorModal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 2rem;
+}
+
+.errorTitle {
+    color: #ff1744;
+    font-size: 3rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.errorMessage {
+    color: #ff1744;
+    font-size: 2rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.errorAction {
+    width: 40%;
+}
+
+.errorButton {
+    margin: 0 0 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease-in;
+
+    &:hover {
+        background-color: #ff1744;
+    }
+}

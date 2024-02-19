@@ -46,6 +46,8 @@
     font-weight: 600;
     background-color: #000000;
     color: #ffffff;
+    border: none;
+    border-radius: 0.5rem;
     transition: all 0.3s ease-in;
 
     &:hover {
@@ -119,6 +121,8 @@
     font-weight: 600;
     background-color: #000000;
     color: #ffffff;
+    border: none;
+    border-radius: 0.5rem;
     transition: all 0.3s ease-in;
 
     &:hover {
@@ -158,6 +162,8 @@
     font-weight: 600;
     background-color: #000000;
     color: #ffffff;
+    border: none;
+    border-radius: 0.5rem;
     transition: all 0.3s ease-in;
 
     &:hover {
