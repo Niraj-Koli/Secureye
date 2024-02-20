@@ -26,7 +26,9 @@ function Video() {
 
     const dispatch = useDispatch();
 
-    const videoEventSource = useSelector((state) => state.video.videoEventSource);
+    const videoEventSource = useSelector(
+        (state) => state.video.videoEventSource
+    );
 
     useEffect(() => {
         if (videoEventSource) {
@@ -73,6 +75,10 @@ function Video() {
         setOriginalVideo(null);
         setIsPredicting(false);
         setSseStarted(true);
+
+        if (videoRef.current) {
+            videoRef.current.value = "";
+        }
     };
 
     // const downloadPdfHandler = async () => {

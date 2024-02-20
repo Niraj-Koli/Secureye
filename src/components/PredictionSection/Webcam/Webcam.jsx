@@ -63,7 +63,7 @@ function Webcam() {
         dispatch(closeWebcamServerSendEventSource());
         setIsPredicting(false);
     };
-    
+
     function errorModal() {
         return (
             <>
@@ -143,8 +143,6 @@ function Webcam() {
             </div>
 
             {errorModal()}
-
-            <div style={{ height: "50rem" }} />
         </>
     );
 }

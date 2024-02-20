@@ -28,10 +28,6 @@ function Image() {
         (state) => state.image.imageDetectedObjects
     );
 
-    const imageClickHandler = () => {
-        imageRef.current.click();
-    };
-
     const imageChangeHandler = (event) => {
         const file = event.target.files[0];
         setOriginalImage(file);
@@ -57,6 +53,10 @@ function Image() {
         setOriginalImage(null);
         setIsPredicting(false);
         setAllowPrintPdf(false);
+
+        if (imageRef.current) {
+            imageRef.current.value = "";
+        }
     };
 
     const downloadPdfHandler = async () => {
@@ -203,16 +203,7 @@ function Image() {
 
                 <div className={styles.predictionCards}>
                     <div className={styles.imageCard}>
-                        <input
-                            type="file"
-                            ref={imageRef}
-                            style={{ display: "none" }}
-                            onChange={imageChangeHandler}
-                            accept="image/*"
-                        />
-                        <div
-                            className={styles.imageTemplate}
-                            onClick={imageClickHandler}>
+                        <div className={styles.imageTemplate}>
                             {originalImage && (
                                 <img
                                     src={URL.createObjectURL(originalImage)}
