@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
-import { useEffect } from "react";
+
+import { useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet";
 import { useDispatch } from "react-redux";
 
@@ -11,48 +12,50 @@ function Layout({ title, children }) {
 
     useEffect(() => {
         dispatch(verifyAuthentication());
-    }, [dispatch]);
-
-    useEffect(() => {
         dispatch(fetchUser());
-    }, [dispatch]);
-
-    useEffect(() => {
         dispatch(resetImagePrediction());
     }, [dispatch]);
 
+    const helmetProps = useMemo(
+        () => ({
+            key: title,
+            title: title,
+            meta: [
+                {
+                    name: "description",
+                    content:
+                        "Detecting farm field fertility through camera images or satellites.",
+                },
+                {
+                    name: "keywords",
+                    content:
+                        "farm field, fertility, detection, camera images, satellites",
+                },
+                {
+                    name: "viewport",
+                    content: "width=device-width, initial-scale=1.0",
+                },
+                {
+                    name: "author",
+                    content: "Guardinger",
+                },
+                {
+                    property: "og:title",
+                    content: "Detecting Farm Field Fertility",
+                },
+                {
+                    property: "og:description",
+                    content:
+                        "Advanced technology for assessing farm field fertility using camera images and satellite data.",
+                },
+            ],
+        }),
+        [title]
+    );
+
     return (
         <>
-            <Helmet key={title}>
-                <title>{title}</title>
-
-                <meta
-                    name="description"
-                    content="Detecting farm field fertility through camera images or satellites."
-                />
-                <meta
-                    name="keywords"
-                    content="farm field, fertility, detection, camera images, satellites"
-                />
-
-                <meta
-                    name="viewport"
-                    content="width=device-width, initial-scale=1.0"
-                />
-
-                <meta name="author" content="Guardinger" />
-
-                <meta
-                    property="og:title"
-                    content="Detecting Farm Field Fertility"
-                />
-
-                <meta
-                    property="og:description"
-                    content="Advanced technology for assessing farm field fertility using camera images and satellite data."
-                />
-            </Helmet>
-
+            <Helmet {...helmetProps} />
             <div>{children}</div>
         </>
     );

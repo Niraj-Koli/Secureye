@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useSelector } from "react-redux";
 
 import styles from "./WebcamServerSentEvents.module.css";
@@ -5,11 +6,13 @@ import styles from "./WebcamServerSentEvents.module.css";
 function WebcamServerSentEvents() {
     const webcamFrames = useSelector((state) => state.webcam.webcamFrames);
 
+    const memoizedWebcamFrames = useMemo(() => webcamFrames, [webcamFrames]);
+
     return (
         <>
             <div className={styles.webcamCard}>
                 <div className={styles.webcamTemplate}>
-                    {webcamFrames.map((frame, index) => (
+                    {memoizedWebcamFrames.map((frame, index) => (
                         <img
                             key={index}
                             src={`data:image/jpeg;base64,${frame}`}

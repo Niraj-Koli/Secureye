@@ -11,32 +11,33 @@ const videoSlice = createSlice({
     initialState,
     reducers: {
         setVideoDetectedObjects: (state, action) => {
-            state.videoDetectedObjects = action.payload;
+            return { ...state, videoDetectedObjects: action.payload };
         },
-        resetVideoPrediction: (state) => {
-            state.videoDetectedObjects = [];
+        resetVideoDetectedObjects: (state) => {
+            return { ...state, videoDetectedObjects: [] };
         },
         setVideoEventSource: (state, action) => {
-            state.videoEventSource = action.payload;
+            return { ...state, videoEventSource: action.payload };
         },
         setVideoFrames: (state, action) => {
-            state.videoFrames = action.payload;
+            return { ...state, videoFrames: action.payload };
         },
         resetVideoFrames: (state) => {
-            state.videoFrames = [];
+            return { ...state, videoFrames: [] };
         },
         closeVideoEventSource: (state) => {
             if (state.videoEventSource) {
                 state.videoEventSource.close();
-                state.videoEventSource = null;
+                return { ...state, videoEventSource: null };
             }
+            return state;
         },
     },
 });
 
 export const {
     setVideoDetectedObjects,
-    resetVideoPrediction,
+    resetVideoDetectedObjects,
     setVideoEventSource,
     setVideoFrames,
     resetVideoFrames,

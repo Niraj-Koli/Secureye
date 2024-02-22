@@ -1,22 +1,31 @@
+import { Suspense, lazy } from "react";
+
 import styles from "./Features.module.css";
 
 import image from "/static/image.jpg";
 import video from "/static/video.png";
 import webcam from "/static/webcam.png";
 
+const Loading = lazy(() => import("@/components/Elementals/Loading/Loading"));
+const Img = lazy(() => import("@/components/Elementals/Img/Img"));
+
 function Features() {
     return (
         <>
             <div className={styles.featuresContainer}>
-                <h1 className={styles.featuresHeading}>{"Secureye Features"}</h1>
+                <h1 className={styles.featuresHeading}>
+                    {"Secureye Features"}
+                </h1>
 
                 <div className={styles.features}>
                     <div className={styles.featuresCard}>
-                        <img
-                            src={image}
-                            alt="Image"
-                            className={styles.featureImage}
-                        />
+                        <Suspense fallback={<Loading />}>
+                            <Img
+                                src={image}
+                                alt="Image"
+                                className={styles.featureImage}
+                            />
+                        </Suspense>
                         <h3 className={styles.featureTitle}>{"Image"}</h3>
                         <p className={styles.featureDescription}>
                             {
@@ -25,11 +34,13 @@ function Features() {
                         </p>
                     </div>
                     <div className={styles.featuresCard}>
-                        <img
-                            src={video}
-                            alt="Video"
-                            className={styles.featureImage}
-                        />
+                        <Suspense fallback={<Loading />}>
+                            <Img
+                                src={video}
+                                alt="Video"
+                                className={styles.featureImage}
+                            />
+                        </Suspense>
                         <h3 className={styles.featureTitle}>{"Video"}</h3>
                         <p className={styles.featureDescription}>
                             {
@@ -38,11 +49,13 @@ function Features() {
                         </p>
                     </div>
                     <div className={styles.featuresCard}>
-                        <img
-                            src={webcam}
-                            className={styles.featureImage}
-                            alt="Webcam"
-                        />
+                        <Suspense fallback={<Loading />}>
+                            <Img
+                                src={webcam}
+                                className={styles.featureImage}
+                                alt="Webcam"
+                            />
+                        </Suspense>
                         <h3 className={styles.featureTitle}>{"Webcam"}</h3>
                         <p className={styles.featureDescription}>
                             {

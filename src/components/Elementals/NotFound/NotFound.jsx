@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 import { Button } from "@mui/material";
 
 import styles from "./NotFound.module.css";
@@ -12,8 +14,9 @@ function NotFound() {
                     </h1>
 
                     <Button
-                        href="/"
-                        type="submit"
+                        component={Link}
+                        to="/"
+                        type="button"
                         fullWidth
                         variant="contained"
                         size="large"

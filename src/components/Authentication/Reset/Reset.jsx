@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { Suspense, lazy, useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
+
 import {
     Button,
     CircularProgress,
@@ -16,130 +17,90 @@ import styles from "./Reset.module.css";
 
 import { requestPasswordReset } from "@/features/auth/authActions";
 
-import Navbar from "@/components/Elementals/Navbar/Navbar";
+const Loading = lazy(() => import("@/components/Elementals/Loading/Loading"));
+const Navbar = lazy(() => import("@/components/Elementals/Navbar/Navbar"));
 
 const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
 function Reset() {
+    const [isLoading, setIsLoading] = useState(false);
     const [formState, setFormState] = useState({
         email: "",
     });
-
-    const [isLoading, setIsLoading] = useState(false);
-    const [successDialogOpen, setSuccessDialogOpen] = useState(false);
-    const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+    const [dialogState, setDialogState] = useState({
+        open: false,
+        type: "success",
+        message: "",
+    });
 
     const { email } = formState;
+    const { open, type, message } = dialogState;
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const inputChangeHandler = (event) => {
-        setFormState({
-            ...formState,
+    const inputChangeHandler = useCallback((event) => {
+        setFormState((prevState) => ({
+            ...prevState,
             [event.target.name]: event.target.value,
-        });
-    };
+        }));
+    }, []);
 
-    const successDialogOpenHandler = () => setSuccessDialogOpen(true);
-    const successDialogCloseHandler = () => {
-        setSuccessDialogOpen(false);
-        navigate("/login");
-    };
-
-    function successModal() {
-        return (
-            <>
-                <Dialog
-                    fullWidth
-                    maxWidth="sm"
-                    open={successDialogOpen}
-                    onClose={successDialogCloseHandler}
-                    classes={{ paper: styles.successModal }}>
-                    <DialogTitle className={styles.successTitle}>
-                        {"Reset Password Link Sent"}
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText className={styles.successMessage}>
-                            {
-                                "An email with instructions to reset your password has been sent. Please check your email."
-                            }
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions className={styles.successAction}>
-                        <Button
-                            fullWidth
-                            size="large"
-                            onClick={successDialogCloseHandler}
-                            className={styles.successButton}
-                            autoFocus>
-                            {"OK"}
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </>
-        );
-    }
-
-    const errorDialogOpenHandler = () => setErrorDialogOpen(true);
-    const errorDialogCloseHandler = () => setErrorDialogOpen(false);
-
-    function errorModal() {
-        return (
-            <>
-                <Dialog
-                    fullWidth
-                    maxWidth="sm"
-                    open={errorDialogOpen}
-                    onClose={errorDialogCloseHandler}
-                    classes={{ paper: styles.errorModal }}>
-                    <DialogTitle className={styles.errorTitle}>
-                        {"Reset Process Failed"}
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText className={styles.errorMessage}>
-                            {"Invalid email. Please try again."}
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions className={styles.errorAction}>
-                        <Button
-                            fullWidth
-                            size="large"
-                            onClick={errorDialogCloseHandler}
-                            className={styles.errorButton}
-                            autoFocus>
-                            {"OK"}
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </>
-        );
-    }
-
-    const submitFormHandler = async (event) => {
-        event.preventDefault();
-
-        const isEmailValid = isValidEmail(email);
-
-        if (isEmailValid) {
-            try {
-                setIsLoading(true);
-                await dispatch(requestPasswordReset(email));
-                successDialogOpenHandler();
-            } catch (error) {
-                errorDialogOpenHandler();
-            } finally {
-                setIsLoading(false);
-            }
-        } else {
-            errorDialogOpenHandler();
+    const dialogCloseHandler = useCallback(() => {
+        setDialogState((prevState) => ({
+            ...prevState,
+            open: false,
+        }));
+        if (type === "success") {
+            navigate("/login");
         }
-    };
+    }, [navigate, type]);
+
+    const submitFormHandler = useCallback(
+        (event) => {
+            event.preventDefault();
+
+            const isEmailValid = isValidEmail(email);
+
+            if (isEmailValid) {
+                setIsLoading(true);
+                dispatch(requestPasswordReset(email))
+                    .then(() => {
+                        setDialogState({
+                            open: true,
+                            type: "success",
+                            message:
+                                "An email with instructions to reset your password has been sent. Please check your email.",
+                        });
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        setDialogState({
+                            open: true,
+                            type: "error",
+                            message: "An error occurred. Please try again.",
+                        });
+                    })
+                    .finally(() => {
+                        setIsLoading(false);
+                    });
+            } else {
+                setDialogState({
+                    open: true,
+                    type: "error",
+                    message: "Invalid email. Please try again.",
+                });
+            }
+        },
+        [dispatch, email]
+    );
 
     return (
         <>
             <div className={styles.resetContainer}>
-                <Navbar />
+                <Suspense fallback={<Loading />}>
+                    <Navbar />
+                </Suspense>
                 <div className={styles.resetCard}>
                     <h1 className={styles.resetHeading}>{"Reset Password"}</h1>
 
@@ -165,7 +126,7 @@ function Reset() {
                         <div className={styles.resetButtonContainer}>
                             {isLoading ? (
                                 <CircularProgress
-                             size={52}
+                                    size={52}
                                     color="inherit"
                                     sx={{ margin: "1rem" }}
                                 />
@@ -191,8 +152,57 @@ function Reset() {
                 </div>
             </div>
 
-            {successModal()}
-            {errorModal()}
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={open}
+                onClose={dialogCloseHandler}
+                classes={{
+                    paper:
+                        type === "success"
+                            ? styles.successModal
+                            : styles.errorModal,
+                }}>
+                <DialogTitle
+                    className={
+                        type === "success"
+                            ? styles.successTitle
+                            : styles.errorTitle
+                    }>
+                    {type === "success"
+                        ? "Reset Password Link Sent"
+                        : "Reset Process Failed"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText
+                        className={
+                            type === "success"
+                                ? styles.successMessage
+                                : styles.errorMessage
+                        }>
+                        {message}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions
+                    className={
+                        type === "success"
+                            ? styles.successAction
+                            : styles.errorAction
+                    }>
+                    <Button
+                        fullWidth
+                        size="large"
+                        onClick={dialogCloseHandler}
+                        className={
+                            type === "success"
+                                ? styles.successButton
+                                : styles.errorButton
+                        }
+                        autoFocus>
+                        {"Okay"}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }

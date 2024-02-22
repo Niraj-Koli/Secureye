@@ -11,7 +11,7 @@ from PIL import Image
 from .models import PredictedImage
 from .forms import ImageDetectionForm, VideoDetectionForm
 
-MODEL_PATH = "D:\\Niru\\Coding\\Projects\\Important\\Secureye\\1\\Secureye\\prediction\\mlModel\\best.pt"
+MODEL_PATH = "D:\\Niru\\Coding\\Projects\\Important\\Secureye\\1\\Secureye\\prediction\\mlModel\\best1.pt"
 
 RESULTS_PATH = (
     "D:\\Niru\\Coding\\Projects\\Important\\Secureye\\1\\Secureye\\media\\results.jpg"
@@ -31,7 +31,7 @@ def imagePrediction(request):
         if form.is_valid():
             image = form.save()
 
-            results = model.predict(source=image.image.path, conf=0.5)
+            results = model.predict(source=image.image.path, conf=0.3)
 
             for result in results:
                 im_array = result.plot()

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { Suspense, lazy, useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
+
 import {
     Button,
     CircularProgress,
@@ -20,157 +21,142 @@ import styles from "./Signup.module.css";
 
 import { signupUserRequest } from "@/features/auth/authActions";
 
-import Navbar from "@/components/Elementals/Navbar/Navbar";
+const Loading = lazy(() => import("@/components/Elementals/Loading/Loading"));
+const Navbar = lazy(() => import("@/components/Elementals/Navbar/Navbar"));
 
 const isValidUsername = (value) => /^[a-zA-Z0-9 ]+$/.test(value);
 const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 const isValidPassword = (value) => value.trim().length > 7 && !/\s/.test(value);
 
 function Signup() {
+    const [isLoading, setIsLoading] = useState(false);
     const [formState, setFormState] = useState({
         name: "",
         email: "",
         password: "",
         isShowNewPassword: false,
     });
-
-    const [isLoading, setIsLoading] = useState(false);
-    const [successDialogOpen, setSuccessDialogOpen] = useState(false);
-    const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+    const [dialogState, setDialogState] = useState({
+        open: false,
+        type: "success",
+        message: "",
+    });
 
     const { name, email, password, isShowNewPassword } = formState;
+    const { open, type, message } = dialogState;
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const inputChangeHandler = (event) => {
-        setFormState({
-            ...formState,
+    const inputChangeHandler = useCallback((event) => {
+        setFormState((prevState) => ({
+            ...prevState,
             [event.target.name]: event.target.value,
-        });
-    };
+        }));
+    }, []);
 
-    const toggleShowPassword = () => {
-        setFormState({
-            ...formState,
-            isShowNewPassword: !isShowNewPassword,
-        });
-    };
+    const toggleShowPassword = useCallback(() => {
+        setFormState((prevState) => ({
+            ...prevState,
+            isShowNewPassword: !prevState.isShowNewPassword,
+        }));
+    }, []);
 
-    const successDialogOpenHandler = () => setSuccessDialogOpen(true);
-    const successDialogCloseHandler = () => {
-        setSuccessDialogOpen(false);
-        navigate("/login");
-    };
-
-    function successModal() {
-        return (
-            <>
-                <Dialog
-                    fullWidth
-                    maxWidth="md"
-                    open={successDialogOpen}
-                    onClose={successDialogCloseHandler}
-                    classes={{ paper: styles.successModal }}>
-                    <DialogTitle className={styles.successTitle}>
-                        {"Signup Successful"}
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText className={styles.successMessage}>
-                            <Typography className={styles.successTypography}>
-                                {"Your account has been successfully created!"}
-                            </Typography>
-                            <Typography className={styles.successTypography}>
-                                {
-                                    "A confirmation link has been sent to your Gmail for account activation."
-                                }
-                            </Typography>
-                            <Typography className={styles.successTypography}>
-                                {
-                                    "Please check your email and follow the instructions to activate your account."
-                                }
-                            </Typography>
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions className={styles.successAction}>
-                        <Button
-                            fullWidth
-                            size="large"
-                            onClick={successDialogCloseHandler}
-                            className={styles.successButton}
-                            autoFocus>
-                            {"Login"}
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </>
-        );
-    }
-
-    const errorDialogOpenHandler = () => setErrorDialogOpen(true);
-    const errorDialogCloseHandler = () => setErrorDialogOpen(false);
-
-    function errorModal() {
-        return (
-            <>
-                <Dialog
-                    fullWidth
-                    maxWidth="sm"
-                    open={errorDialogOpen}
-                    onClose={errorDialogCloseHandler}
-                    classes={{ paper: styles.errorModal }}>
-                    <DialogTitle className={styles.errorTitle}>
-                        {"Signup Failed"}
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText className={styles.errorMessage}>
-                            {
-                                "Invalid username, email or password. Please try again."
-                            }
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions className={styles.errorAction}>
-                        <Button
-                            fullWidth
-                            size="large"
-                            onClick={errorDialogCloseHandler}
-                            className={styles.errorButton}
-                            autoFocus>
-                            {"OK"}
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </>
-        );
-    }
-
-    const submitFormHandler = async (event) => {
-        event.preventDefault();
-
-        const isUsernameValid = isValidUsername(name);
-        const isEmailValid = isValidEmail(email);
-        const isPasswordValid = isValidPassword(password);
-
-        if (isUsernameValid && isEmailValid && isPasswordValid) {
-            try {
-                setIsLoading(true);
-                await dispatch(signupUserRequest({ name, email, password }));
-                successDialogOpenHandler();
-            } catch (error) {
-                console.error(error);
-                errorDialogOpenHandler();
-            } finally {
-                setIsLoading(false);
-            }
-        } else {
-            errorDialogOpenHandler();
+    const dialogCloseHandler = useCallback(() => {
+        setDialogState((prevState) => ({
+            ...prevState,
+            open: false,
+        }));
+        if (type === "success") {
+            navigate("/login");
         }
-    };
+    }, [navigate, type]);
+
+    const submitFormHandler = useCallback(
+        (event) => {
+            event.preventDefault();
+
+            const isUsernameValid = isValidUsername(name);
+            const isEmailValid = isValidEmail(email);
+            const isPasswordValid = isValidPassword(password);
+
+            if (isUsernameValid && isEmailValid && isPasswordValid) {
+                setIsLoading(true);
+                dispatch(signupUserRequest({ name, email, password }))
+                    .then((action) => {
+                        const response = action.payload;
+
+                        if (response) {
+                            setDialogState({
+                                open: true,
+                                type: "success",
+                                message: (
+                                    <>
+                                        <Typography
+                                            className={
+                                                styles.successTypography
+                                            }>
+                                            {
+                                                "Your account has been successfully created!"
+                                            }
+                                        </Typography>
+                                        <Typography
+                                            className={
+                                                styles.successTypography
+                                            }>
+                                            {
+                                                "A confirmation link has been sent to your Gmail for account activation."
+                                            }
+                                        </Typography>
+                                        <Typography
+                                            className={
+                                                styles.successTypography
+                                            }>
+                                            {
+                                                "Please check your email and follow the instructions to activate your account."
+                                            }
+                                        </Typography>
+                                    </>
+                                ),
+                            });
+                        } else {
+                            setDialogState({
+                                open: true,
+                                type: "error",
+                                message:
+                                    "User with this email address already exists or password is similar to email. Please Check!",
+                            });
+                        }
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                        setDialogState({
+                            open: true,
+                            type: "error",
+                            message: "An error occurred. Please try again.",
+                        });
+                    })
+                    .finally(() => {
+                        setIsLoading(false);
+                    });
+            } else {
+                setDialogState({
+                    open: true,
+                    type: "error",
+                    message:
+                        "Invalid username, email or password. Please try again.",
+                });
+            }
+        },
+        [dispatch, email, name, password]
+    );
 
     return (
         <>
             <div className={styles.signupContainer}>
-                <Navbar />
+                <Suspense fallback={<Loading />}>
+                    <Navbar />
+                </Suspense>
                 <div className={styles.signupCard}>
                     <h1 className={styles.signupHeading}>{"Signup"}</h1>
 
@@ -275,8 +261,55 @@ function Signup() {
                 </div>
             </div>
 
-            {successModal()}
-            {errorModal()}
+            <Dialog
+                fullWidth
+                maxWidth={type === "success" ? "md" : "sm"}
+                open={open}
+                onClose={dialogCloseHandler}
+                classes={{
+                    paper:
+                        type === "success"
+                            ? styles.successModal
+                            : styles.errorModal,
+                }}>
+                <DialogTitle
+                    className={
+                        type === "success"
+                            ? styles.successTitle
+                            : styles.errorTitle
+                    }>
+                    {type === "success" ? "Signup Successful" : "Signup Failed"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText
+                        className={
+                            type === "success"
+                                ? styles.successMessage
+                                : styles.errorMessage
+                        }>
+                        {message}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions
+                    className={
+                        type === "success"
+                            ? styles.successAction
+                            : styles.errorAction
+                    }>
+                    <Button
+                        fullWidth
+                        size="large"
+                        onClick={dialogCloseHandler}
+                        className={
+                            type === "success"
+                                ? styles.successButton
+                                : styles.errorButton
+                        }
+                        autoFocus>
+                        {type === "success" ? "Login" : "Okay"}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }

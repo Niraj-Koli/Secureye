@@ -13,6 +13,7 @@ const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_URL;
 export const startWebcamServerSentEventSource = createAsyncThunk(
     "webcam/startWebcamServerSentEventSource",
     async (_, { dispatch }) => {
+        dispatch(resetWebcamFrames());
         const eventSource = new EventSource(
             `${API_BASE_URL}/prediction/webcamFrames/`
         );

@@ -1,17 +1,17 @@
 import axios from "axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
-import { setCsrfToken } from "@/features/cookie/cookieSlice";
+import { setCsrfToken } from "@/features/csrf/csrfSlice";
 import {
     setPredictedImage,
-    setImageDetectionObjects,
+    setImageDetectedObjects,
 } from "@/features/image/imageSlice";
 
 const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_URL;
 
 export const processImage = createAsyncThunk(
     "image/processImage",
-    async (image, { dispatch }) => {
+    async (image, { dispatch, getState }) => {
         const formData = new FormData();
         formData.append("image", image);
 
@@ -34,16 +34,24 @@ export const processImage = createAsyncThunk(
                 const newCsrfToken = response.headers["x-csrftoken"];
                 dispatch(setCsrfToken(newCsrfToken));
 
-                const image = data.image;
-
-                dispatch(setPredictedImage(`data:image/jpeg;base64,${image}`));
-                dispatch(setImageDetectionObjects(data.objects));
+                dispatch(
+                    setPredictedImage(`data:image/jpeg;base64,${data.image}`)
+                );
+                dispatch(setImageDetectedObjects(data.objects));
 
                 return data;
             } else {
                 throw new Error("Failed To Upload Image");
             }
         } catch (error) {
+            const {
+                image: {
+                    initialState: { predictedImage, imageDetectedObjects },
+                },
+            } = getState();
+            dispatch(setPredictedImage(predictedImage));
+            dispatch(setImageDetectedObjects(imageDetectedObjects));
+
             console.log(error);
             throw new Error("Error Uploading Image");
         }

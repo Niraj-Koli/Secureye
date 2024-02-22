@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { Suspense, lazy, useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
+
 import {
     Button,
     CircularProgress,
@@ -19,154 +20,112 @@ import styles from "./Login.module.css";
 
 import { loginUserRequest } from "@/features/auth/authActions";
 
-import Navbar from "@/components/Elementals/Navbar/Navbar";
+const Loading = lazy(() => import("@/components/Elementals/Loading/Loading"));
+const Navbar = lazy(() => import("@/components/Elementals/Navbar/Navbar"));
 
 const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 const isValidPassword = (value) => value.trim().length > 7 && !/\s/.test(value);
 
 function Login() {
+    const [isLoading, setIsLoading] = useState(false);
     const [formState, setFormState] = useState({
         email: "",
         password: "",
         isShowNewPassword: false,
     });
-
-    const [isLoading, setIsLoading] = useState(false);
-    const [successDialogOpen, setSuccessDialogOpen] = useState(false);
-    const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+    const [dialogState, setDialogState] = useState({
+        open: false,
+        type: "success",
+        message: "",
+    });
 
     const { email, password, isShowNewPassword } = formState;
+    const { open, type, message } = dialogState;
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const inputChangeHandler = (event) => {
-        setFormState({
-            ...formState,
+    const inputChangeHandler = useCallback((event) => {
+        setFormState((prevState) => ({
+            ...prevState,
             [event.target.name]: event.target.value,
-        });
-    };
+        }));
+    }, []);
 
-    const toggleShowPassword = () => {
-        setFormState({
-            ...formState,
-            isShowNewPassword: !isShowNewPassword,
-        });
-    };
+    const toggleShowPassword = useCallback(() => {
+        setFormState((prevState) => ({
+            ...prevState,
+            isShowNewPassword: !prevState.isShowNewPassword,
+        }));
+    }, []);
 
-    const successDialogOpenHandler = () => setSuccessDialogOpen(true);
-    const successDialogCloseHandler = () => {
-        setSuccessDialogOpen(false);
-        navigate("/");
-    };
+    const dialogCloseHandler = useCallback(() => {
+        setDialogState((prevState) => ({
+            ...prevState,
+            open: false,
+        }));
+        if (type === "success") {
+            navigate("/");
+        }
+    }, [navigate, type]);
 
-    function successModal() {
-        return (
-            <>
-                <Dialog
-                    fullWidth
-                    maxWidth="sm"
-                    open={successDialogOpen}
-                    onClose={successDialogCloseHandler}
-                    classes={{ paper: styles.successModal }}>
-                    <DialogTitle className={styles.successTitle}>
-                        {"Login Successful"}
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText className={styles.successMessage}>
-                            {"Welcome! You have successfully logged in."}
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions className={styles.successAction}>
-                        <Button
-                            fullWidth
-                            size="large"
-                            onClick={successDialogCloseHandler}
-                            className={styles.successButton}
-                            autoFocus>
-                            {"Explore"}
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </>
-        );
-    }
+    const submitFormHandler = useCallback(
+        (event) => {
+            event.preventDefault();
 
-    const errorDialogOpenHandler = () => setErrorDialogOpen(true);
-    const errorDialogCloseHandler = () => setErrorDialogOpen(false);
+            const isEmailValid = isValidEmail(email);
+            const isPasswordValid = isValidPassword(password);
 
-    function errorModal() {
-        return (
-            <>
-                <Dialog
-                    fullWidth
-                    maxWidth="sm"
-                    open={errorDialogOpen}
-                    onClose={errorDialogCloseHandler}
-                    classes={{ paper: styles.errorModal }}>
-                    <DialogTitle className={styles.errorTitle}>
-                        {"Login Failed"}
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText className={styles.errorMessage}>
-                            {"Invalid email or password. Please try again."}
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions className={styles.errorAction}>
-                        <Button
-                            fullWidth
-                            size="large"
-                            onClick={errorDialogCloseHandler}
-                            className={styles.errorButton}
-                            autoFocus>
-                            {"OK"}
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </>
-        );
-    }
-
-    const submitFormHandler = async (event) => {
-        event.preventDefault();
-
-        const isEmailValid = isValidEmail(email);
-        const isPasswordValid = isValidPassword(password);
-
-        if (isEmailValid && isPasswordValid) {
-            try {
+            if (isEmailValid && isPasswordValid) {
                 setIsLoading(true);
-                await dispatch(loginUserRequest({ email, password }))
+                dispatch(loginUserRequest({ email, password }))
                     .then((action) => {
                         const response = action.payload;
 
                         if (response) {
-                            successDialogOpenHandler();
+                            setDialogState({
+                                open: true,
+                                type: "success",
+                                message:
+                                    "Welcome! You have successfully logged in.",
+                            });
                         } else {
-                            errorDialogOpenHandler();
+                            setDialogState({
+                                open: true,
+                                type: "error",
+                                message:
+                                    "Invalid email or password. Please try again.",
+                            });
                         }
                     })
                     .catch((error) => {
                         console.error(error);
-                        errorDialogOpenHandler();
+                        setDialogState({
+                            open: true,
+                            type: "error",
+                            message: "An error occurred. Please try again.",
+                        });
                     })
                     .finally(() => {
                         setIsLoading(false);
                     });
-            } catch (error) {
-                errorDialogOpenHandler();
-            } finally {
-                setIsLoading(false);
+            } else {
+                setDialogState({
+                    open: true,
+                    type: "error",
+                    message: "Invalid email or password. Please try again.",
+                });
             }
-        } else {
-            errorDialogOpenHandler();
-        }
-    };
+        },
+        [dispatch, email, password]
+    );
 
     return (
         <>
             <div className={styles.loginContainer}>
-                <Navbar />
+                <Suspense fallback={<Loading />}>
+                    <Navbar />
+                </Suspense>
                 <div className={styles.loginCard}>
                     <h1 className={styles.loginHeading}>{"Login"}</h1>
 
@@ -261,8 +220,55 @@ function Login() {
                 </div>
             </div>
 
-            {successModal()}
-            {errorModal()}
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={open}
+                onClose={dialogCloseHandler}
+                classes={{
+                    paper:
+                        type === "success"
+                            ? styles.successModal
+                            : styles.errorModal,
+                }}>
+                <DialogTitle
+                    className={
+                        type === "success"
+                            ? styles.successTitle
+                            : styles.errorTitle
+                    }>
+                    {type === "success" ? "Login Successful" : "Login Failed"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText
+                        className={
+                            type === "success"
+                                ? styles.successMessage
+                                : styles.errorMessage
+                        }>
+                        {message}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions
+                    className={
+                        type === "success"
+                            ? styles.successAction
+                            : styles.errorAction
+                    }>
+                    <Button
+                        fullWidth
+                        size="large"
+                        onClick={dialogCloseHandler}
+                        className={
+                            type === "success"
+                                ? styles.successButton
+                                : styles.errorButton
+                        }
+                        autoFocus>
+                        {type === "success" ? "Explore" : "Okay"}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }

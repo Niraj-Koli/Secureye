@@ -1,5 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import {
+    Suspense,
+    lazy,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
+
 import { Button, CircularProgress } from "@mui/material";
 
 import styles from "./Video.module.css";
@@ -10,8 +19,13 @@ import {
     startVideoServerSentEventSource,
 } from "@/features/video/videoActions";
 
-import Navbar from "@/components/Elementals/Navbar/Navbar";
-import VideoServerSentEvents from "@/components/PredictionSection/VideoServerSentEvents/VideoServerSentEvents";
+const Loading = lazy(() => import("@/components/Elementals/Loading/Loading"));
+const Navbar = lazy(() => import("@/components/Elementals/Navbar/Navbar"));
+const VideoServerSentEvents = lazy(() =>
+    import(
+        "@/components/PredictionSection/VideoServerSentEvents/VideoServerSentEvents"
+    )
+);
 
 function Video() {
     const videoRef = useRef(null);
@@ -19,10 +33,11 @@ function Video() {
     const [isLoading, setIsLoading] = useState(false);
     // const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
     // const [allowPrintPdf, setAllowPrintPdf] = useState(false);
-    const [originalVideo, setOriginalVideo] = useState(null);
     const [isPredicting, setIsPredicting] = useState(false);
     const [sseStarted, setSseStarted] = useState(true);
     const [showSpinner, setShowSpinner] = useState(false);
+
+    const [originalVideo, setOriginalVideo] = useState(null);
 
     const dispatch = useDispatch();
 
@@ -34,43 +49,41 @@ function Video() {
         if (videoEventSource) {
             setSseStarted(false);
             return () => {
-                dispatch(closeVideoServerSendEventSource);
+                dispatch(closeVideoServerSendEventSource());
             };
         }
     }, [dispatch, videoEventSource]);
 
-    const videoChangeHandler = (event) => {
+    const videoChangeHandler = useCallback((event) => {
         const file = event.target.files[0];
         setOriginalVideo(file);
-    };
+    }, []);
 
-    const videoSubmitHandler = async () => {
+    const videoSubmitHandler = useCallback(() => {
         setIsLoading(true);
         setShowSpinner(true);
         setIsPredicting(true);
 
-        try {
-            if (videoEventSource) {
-                dispatch(closeVideoServerSendEventSource());
-            }
-
-            await dispatch(processVideo(originalVideo));
-
-            await new Promise((resolve) => setTimeout(resolve, 5000));
-
-            await dispatch(startVideoServerSentEventSource());
-
-            setShowSpinner(false);
-
-            // setAllowPrintPdf(true);
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setIsLoading(false);
+        if (videoEventSource) {
+            dispatch(closeVideoServerSendEventSource());
         }
-    };
 
-    const videoResetHandler = () => {
+        dispatch(processVideo(originalVideo))
+            .then(() => new Promise((resolve) => setTimeout(resolve, 5000)))
+            .then(() => dispatch(startVideoServerSentEventSource()))
+            .then(() => {
+                setShowSpinner(false);
+                // setAllowPrintPdf(true);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
+    }, [dispatch, originalVideo, videoEventSource]);
+
+    const videoResetHandler = useCallback(() => {
         dispatch(closeVideoServerSendEventSource());
         setOriginalVideo(null);
         setIsPredicting(false);
@@ -79,7 +92,7 @@ function Video() {
         if (videoRef.current) {
             videoRef.current.value = "";
         }
-    };
+    }, [dispatch]);
 
     // const downloadPdfHandler = async () => {
     //     try {
@@ -91,10 +104,26 @@ function Video() {
     //     }
     // };
 
+    const videoSrc = useMemo(
+        () => (originalVideo ? URL.createObjectURL(originalVideo) : null),
+        [originalVideo]
+    );
+
+    const loadingSpinner =
+        isLoading || showSpinner ? (
+            <CircularProgress
+                size={72}
+                color="inherit"
+                sx={{ margin: "1rem" }}
+            />
+        ) : null;
+
     return (
         <>
             <div className={styles.videoContainer}>
-                <Navbar />
+                <Suspense fallback={<Loading />}>
+                    <Navbar />
+                </Suspense>
 
                 <div className={styles.uploadButtonCard}>
                     <Button
@@ -119,25 +148,21 @@ function Video() {
                         <div className={styles.videoTemplate}>
                             {originalVideo && (
                                 <video
-                                    src={URL.createObjectURL(originalVideo)}
-                                    controls
+                                    src={videoSrc}
                                     className={styles.renderedVideoFrame}
+                                    controls
                                 />
                             )}
                         </div>
                     </div>
-                    <VideoServerSentEvents />
+                    <Suspense fallback={<Loading />}>
+                        <VideoServerSentEvents />
+                    </Suspense>
                 </div>
 
                 <div className={styles.predictionButtonsActions}>
                     <div className={styles.predictionButtonCard}>
-                        {isLoading || showSpinner ? (
-                            <CircularProgress
-                                size={72}
-                                color="inherit"
-                                sx={{ margin: "1rem" }}
-                            />
-                        ) : (
+                        {loadingSpinner || (
                             <Button
                                 variant="contained"
                                 size="large"
@@ -192,8 +217,6 @@ function Video() {
                     )}
                 </div> */}
             </div>
-
-            <div style={{ height: "50rem" }} />
         </>
     );
 }

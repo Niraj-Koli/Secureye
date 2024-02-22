@@ -1,7 +1,9 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { useRef, useState } from "react";
+
+import { Suspense, lazy, useCallback, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+
 import { Button, CircularProgress } from "@mui/material";
 
 import styles from "./Image.module.css";
@@ -10,7 +12,8 @@ import { resetImagePrediction } from "@/features/image/imageSlice";
 
 import { processImage } from "@/features/image/imageActions";
 
-import Navbar from "@/components/Elementals/Navbar/Navbar";
+const Loading = lazy(() => import("@/components/Elementals/Loading/Loading"));
+const Navbar = lazy(() => import("@/components/Elementals/Navbar/Navbar"));
 
 function Image() {
     const imageRef = useRef(null);
@@ -18,8 +21,9 @@ function Image() {
     const [isLoading, setIsLoading] = useState(false);
     const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
     const [isPredicting, setIsPredicting] = useState(false);
-    const [originalImage, setOriginalImage] = useState(null);
     const [allowPrintPdf, setAllowPrintPdf] = useState(false);
+
+    const [originalImage, setOriginalImage] = useState(null);
 
     const dispatch = useDispatch();
 
@@ -28,38 +32,40 @@ function Image() {
         (state) => state.image.imageDetectedObjects
     );
 
-    const imageChangeHandler = (event) => {
+    const imageChangeHandler = useCallback((event) => {
         const file = event.target.files[0];
         setOriginalImage(file);
-    };
+    }, []);
 
-    const imageSubmitHandler = async () => {
+    const imageSubmitHandler = useCallback(() => {
         setIsLoading(true);
         setIsPredicting(true);
 
-        try {
-            await dispatch(processImage(originalImage));
+        dispatch(processImage(originalImage))
+            .then(() => {
+                setAllowPrintPdf(true);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
+    }, [dispatch, originalImage]);
 
-            setAllowPrintPdf(true);
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const removeImagesHandler = () => {
+    const removeImagesHandler = useCallback(() => {
         dispatch(resetImagePrediction());
         setOriginalImage(null);
         setIsPredicting(false);
         setAllowPrintPdf(false);
-
         if (imageRef.current) {
             imageRef.current.value = "";
         }
-    };
+    }, [dispatch]);
 
-    const downloadPdfHandler = async () => {
+    const downloadPdfHandler = useCallback(async () => {
+        setIsGeneratingPdf(true);
+
         try {
             const pdf = new jsPDF();
             const imgHeight = 110;
@@ -130,7 +136,7 @@ function Image() {
             const tableRows = imageDetectedObjects.map((object, index) => [
                 index + 1,
                 object.class,
-                `${object.confidence} %`,
+                `${object.confidence.toFixed(0)} %`,
             ]);
 
             pdf.autoTable({
@@ -176,12 +182,14 @@ function Image() {
         } finally {
             setIsGeneratingPdf(false);
         }
-    };
+    }, [imageDetectedObjects, originalImage, predictedImage]);
 
     return (
         <>
             <div className={styles.imageContainer}>
-                <Navbar />
+                <Suspense fallback={<Loading />}>
+                    <Navbar />
+                </Suspense>
 
                 <div className={styles.uploadButtonCard}>
                     <Button
@@ -288,7 +296,7 @@ function Image() {
                                         {object.class}
                                     </td>
                                     <td className={styles.tableCells}>
-                                        {object.confidence} {"%"}
+                                        {object.confidence.toFixed(0)} {"%"}
                                     </td>
                                 </tr>
                             ))}

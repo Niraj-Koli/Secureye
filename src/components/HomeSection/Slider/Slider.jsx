@@ -1,3 +1,5 @@
+import PropTypes from "prop-types";
+
 import {
     ReactCompareSlider,
     ReactCompareSliderImage,
@@ -5,14 +7,11 @@ import {
 
 import styles from "./Slider.module.css";
 
-import beforeImage from "/static/beforeImage.jpg";
-import afterImage from "/static/afterImage.jpg";
-
-function Slider() {
+function Slider({ beforeImage, afterImage }) {
     return (
         <>
             <div className={styles.sliderContainer}>
-                <h1 className={styles.sliderHeading}>Image Comparison</h1>
+                <h1 className={styles.sliderHeading}>{"Image Comparison"}</h1>
 
                 <div className={styles.sliderCard}>
                     <ReactCompareSlider
@@ -44,5 +43,10 @@ function Slider() {
         </>
     );
 }
+
+Slider.propTypes = {
+    beforeImage: PropTypes.string.isRequired,
+    afterImage: PropTypes.string.isRequired,
+};
 
 export default Slider;

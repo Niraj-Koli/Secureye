@@ -1,7 +1,7 @@
 import axios from "axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
-import { setCsrfToken } from "@/features/cookie/cookieSlice";
+import { setCsrfToken } from "@/features/csrf/csrfSlice";
 import {
     setVideoEventSource,
     setVideoFrames,
@@ -50,6 +50,7 @@ export const processVideo = createAsyncThunk(
 export const startVideoServerSentEventSource = createAsyncThunk(
     "video/startVideoServerSentEventSource",
     async (_, { dispatch }) => {
+        dispatch(resetVideoFrames());
         const eventSource = new EventSource(
             `${API_BASE_URL}/prediction/videoFrames/`
         );

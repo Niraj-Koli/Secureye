@@ -10,21 +10,20 @@ const imageSlice = createSlice({
     initialState,
     reducers: {
         setPredictedImage: (state, action) => {
-            state.predictedImage = action.payload;
+            return { ...state, predictedImage: action.payload };
         },
-        setImageDetectionObjects: (state, action) => {
-            state.imageDetectedObjects = action.payload;
+        setImageDetectedObjects: (state, action) => {
+            return { ...state, imageDetectedObjects: action.payload };
         },
         resetImagePrediction: (state) => {
-            state.predictedImage = null;
-            state.imageDetectedObjects = [];
+            return { ...state, predictedImage: null, imageDetectedObjects: [] };
         },
     },
 });
 
 export const {
     setPredictedImage,
-    setImageDetectionObjects,
+    setImageDetectedObjects,
     resetImagePrediction,
 } = imageSlice.actions;
 export default imageSlice.reducer;

@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+
 import {
     Button,
     CircularProgress,
@@ -12,14 +13,20 @@ import {
 
 import styles from "./Webcam.module.css";
 
+import { setWebcamError } from "@/features/webcam/webcamSlice";
+
 import {
     closeWebcamServerSendEventSource,
     startWebcamServerSentEventSource,
 } from "@/features/webcam/webcamActions";
-import { setWebcamError } from "@/features/webcam/webcamSlice";
 
-import Navbar from "@/components/Elementals/Navbar/Navbar";
-import WebcamServerSentEvents from "@/components/PredictionSection/WebcamServerSentEvents/WebcamServerSentEvents";
+const Loading = lazy(() => import("@/components/Elementals/Loading/Loading"));
+const Navbar = lazy(() => import("@/components/Elementals/Navbar/Navbar"));
+const WebcamServerSentEvents = lazy(() =>
+    import(
+        "@/components/PredictionSection/WebcamServerSentEvents/WebcamServerSentEvents"
+    )
+);
 
 function Webcam() {
     const [isPredicting, setIsPredicting] = useState(false);
@@ -34,77 +41,45 @@ function Webcam() {
     useEffect(() => {
         if (webcamEventSource) {
             return () => {
-                dispatch(closeWebcamServerSendEventSource);
+                dispatch(closeWebcamServerSendEventSource());
             };
         }
     }, [dispatch, webcamEventSource]);
 
-    const webcamStartHandler = async () => {
+    const webcamStartHandler = useCallback(() => {
         setIsPredicting(true);
 
-        try {
-            if (webcamEventSource) {
-                dispatch(closeWebcamServerSendEventSource());
-            }
-
-            await dispatch(startWebcamServerSentEventSource());
-        } catch (error) {
-            console.log(error);
+        if (webcamEventSource) {
+            dispatch(closeWebcamServerSendEventSource());
         }
-    };
 
-    const webcamStopHandler = () => {
+        dispatch(startWebcamServerSentEventSource()).catch((error) => {
+            console.log(error);
+        });
+    }, [dispatch, webcamEventSource]);
+
+    const webcamStopHandler = useCallback(() => {
         dispatch(closeWebcamServerSendEventSource());
         setIsPredicting(false);
-    };
+    }, [dispatch]);
 
-    const errorDialogCloseHandler = () => {
+    const errorDialogCloseHandler = useCallback(() => {
         dispatch(setWebcamError(false));
         dispatch(closeWebcamServerSendEventSource());
         setIsPredicting(false);
-    };
-
-    function errorModal() {
-        return (
-            <>
-                <Dialog
-                    fullWidth
-                    maxWidth="sm"
-                    open={webcamError}
-                    onClose={errorDialogCloseHandler}
-                    classes={{ paper: styles.errorModal }}>
-                    <DialogTitle className={styles.errorTitle}>
-                        {"Webcam Not Found"}
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText className={styles.errorMessage}>
-                            {
-                                "Please check if webcam is accessible or attached to the computer."
-                            }
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions className={styles.errorAction}>
-                        <Button
-                            fullWidth
-                            size="large"
-                            onClick={errorDialogCloseHandler}
-                            className={styles.errorButton}
-                            autoFocus>
-                            {"Okay"}
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </>
-        );
-    }
+    }, [dispatch]);
 
     return (
         <>
             <div className={styles.webcamContainer}>
-                <Navbar />
+                <Suspense fallback={<Loading />}>
+                    <Navbar />
+                </Suspense>
 
                 <div className={styles.predictionCards}>
-                    <WebcamServerSentEvents />
+                    <Suspense fallback={<Loading />}>
+                        <WebcamServerSentEvents />
+                    </Suspense>
                 </div>
 
                 <div className={styles.predictionButtonsActions}>
@@ -142,7 +117,33 @@ function Webcam() {
                 </div>
             </div>
 
-            {errorModal()}
+            <Dialog
+                fullWidth
+                maxWidth="sm"
+                open={webcamError}
+                onClose={errorDialogCloseHandler}
+                classes={{ paper: styles.errorModal }}>
+                <DialogTitle className={styles.errorTitle}>
+                    {"Webcam Not Found"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText className={styles.errorMessage}>
+                        {
+                            "Please check if webcam is accessible or attached to the computer."
+                        }
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions className={styles.errorAction}>
+                    <Button
+                        fullWidth
+                        size="large"
+                        onClick={errorDialogCloseHandler}
+                        className={styles.errorButton}
+                        autoFocus>
+                        {"Okay"}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }

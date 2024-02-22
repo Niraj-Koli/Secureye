@@ -1,8 +1,6 @@
 import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 
-import styles from "./Footer.module.css";
-
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import InstagramIcon from "@mui/icons-material/Instagram";
@@ -14,8 +12,13 @@ import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 import ImportContactsRoundedIcon from "@mui/icons-material/ImportContactsRounded";
 import NavigationRoundedIcon from "@mui/icons-material/NavigationRounded";
 
+import styles from "./Footer.module.css";
+
 function Footer() {
-    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+    const isAuthenticated = useSelector(
+        (state) => state.auth.isAuthenticated,
+        []
+    );
 
     return (
         <>

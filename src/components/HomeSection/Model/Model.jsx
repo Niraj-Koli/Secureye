@@ -1,6 +1,8 @@
 import PropTypes from "prop-types";
-import { NavLink } from "react-router-dom";
+
 import { useSelector } from "react-redux";
+import { NavLink } from "react-router-dom";
+
 import { Button } from "@mui/material";
 
 import styles from "./Model.module.css";

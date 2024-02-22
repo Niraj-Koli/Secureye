@@ -11,22 +11,23 @@ const webcamSlice = createSlice({
     initialState,
     reducers: {
         setWebcamEventSource: (state, action) => {
-            state.webcamEventSource = action.payload;
+            return { ...state, webcamEventSource: action.payload };
         },
         setWebcamFrames: (state, action) => {
-            state.webcamFrames = action.payload;
+            return { ...state, webcamFrames: action.payload };
         },
         resetWebcamFrames: (state) => {
-            state.webcamFrames = [];
+            return { ...state, webcamFrames: [] };
         },
         closeWebcamEventSource: (state) => {
             if (state.webcamEventSource) {
                 state.webcamEventSource.close();
-                state.webcamEventSource = null;
+                return { ...state, webcamEventSource: null };
             }
+            return state;
         },
         setWebcamError: (state, action) => {
-            state.webcamError = action.payload;
+            return { ...state, webcamError: action.payload };
         },
     },
 });
