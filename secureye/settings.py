@@ -110,10 +110,13 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "secureyedb",
         "USER": "postgres",
-        "PASSWORD": "niraj@123",
+        "PASSWORD": "prjwl9597",
         "HOST": "localhost",
     }
 }
+
+
+
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
