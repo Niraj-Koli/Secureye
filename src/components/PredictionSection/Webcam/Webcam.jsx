@@ -129,6 +129,9 @@ function Webcam() {
                             <th className={styles.reportHeading}>
                                 {"Objects"}
                             </th>
+                            <th className={styles.reportHeading}>
+                                {"Timestamp"}
+                            </th>
                         </tr>
                     </thead>
 
@@ -140,6 +143,9 @@ function Webcam() {
                                 </td>
                                 <td className={styles.tableCells}>
                                     {object.detected_element}
+                                </td>
+                                <td className={styles.tableCells}>
+                                    {object.element_timestamp}
                                 </td>
                             </tr>
                         ))}

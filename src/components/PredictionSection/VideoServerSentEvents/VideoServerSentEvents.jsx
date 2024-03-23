@@ -4,14 +4,24 @@ import { useSelector } from "react-redux";
 import styles from "./VideoServerSentEvents.module.css";
 
 function VideoServerSentEvents() {
+    const videoEventSource = useSelector(
+        (state) => state.video.videoEventSource
+    );
     const videoFrames = useSelector((state) => state.video.videoFrames);
 
     const memoizedVideoFrames = useMemo(() => videoFrames, [videoFrames]);
 
     return (
         <>
+            {console.log(videoEventSource)}
             <div className={styles.videoCard}>
-                <div className={styles.videoTemplate}>
+                <div
+                    className={styles.videoTemplate}
+                    style={{
+                        backgroundImage: videoEventSource
+                            ? "none"
+                            : 'url("/static/videoDefault.jpg")',
+                    }}>
                     {memoizedVideoFrames.map((frame, index) => (
                         <img
                             key={index}

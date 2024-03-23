@@ -33,3 +33,4 @@ class ImageDetectionAdmin(admin.ModelAdmin):
 class Track(models.Model):
     track_id = models.IntegerField()
     class_name = models.CharField(max_length=100)
+    timestamp = models.FloatField(default=0.0)

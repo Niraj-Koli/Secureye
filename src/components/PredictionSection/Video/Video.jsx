@@ -64,7 +64,7 @@ function Video() {
         }
 
         dispatch(processVideo(originalVideo))
-            .then(() => new Promise((resolve) => setTimeout(resolve, 5000)))
+            .then(() => new Promise((resolve) => setTimeout(resolve, 3000)))
             .then(() => dispatch(startVideoServerSentEventSource()))
             .then(() => {
                 setShowSpinner(false);
@@ -128,7 +128,7 @@ function Video() {
                         size="large"
                         component="label"
                         className={styles.uploadButton}
-                        disabled={isPredicting}>
+                        disabled={isPredicting || originalVideo}>
                         {"Video"}
                         <input
                             type="file"
@@ -142,7 +142,13 @@ function Video() {
 
                 <div className={styles.predictionCards}>
                     <div className={styles.videoCard}>
-                        <div className={styles.videoTemplate}>
+                        <div
+                            className={styles.videoTemplate}
+                            style={{
+                                backgroundImage: originalVideo
+                                    ? "none"
+                                    : 'url("/static/videoDefault.jpg")',
+                            }}>
                             {originalVideo && (
                                 <video
                                     src={videoSrc}
@@ -211,6 +217,9 @@ function Video() {
                                 <th className={styles.reportHeading}>
                                     {"Objects"}
                                 </th>
+                                <th className={styles.reportHeading}>
+                                    {"Timestamps"}
+                                </th>
                             </tr>
                         </thead>
 
@@ -222,6 +231,9 @@ function Video() {
                                     </td>
                                     <td className={styles.tableCells}>
                                         {object.detected_class}
+                                    </td>
+                                    <td className={styles.tableCells}>
+                                        {object.detected_timestamps.toFixed(2)}
                                     </td>
                                 </tr>
                             ))}
