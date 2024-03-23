@@ -28,3 +28,8 @@ class PredictedImageInline(admin.TabularInline):
 
 class ImageDetectionAdmin(admin.ModelAdmin):
     inlines = [PredictedImageInline]
+
+
+class Track(models.Model):
+    track_id = models.IntegerField()
+    class_name = models.CharField(max_length=100)

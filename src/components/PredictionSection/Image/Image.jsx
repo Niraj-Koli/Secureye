@@ -135,8 +135,8 @@ function Image() {
             const tableColumns = ["No.", "Objects", "Confidence"];
             const tableRows = imageDetectedObjects.map((object, index) => [
                 index + 1,
-                object.class,
-                `${object.confidence.toFixed(0)} %`,
+                object.detected_class,
+                `${object.detected_confidence.toFixed(0)} %`,
             ]);
 
             pdf.autoTable({
@@ -293,10 +293,11 @@ function Image() {
                                         {index + 1}
                                     </td>
                                     <td className={styles.tableCells}>
-                                        {object.class}
+                                        {object.detected_class}
                                     </td>
                                     <td className={styles.tableCells}>
-                                        {object.confidence.toFixed(0)} {"%"}
+                                        {object.detected_confidence.toFixed(0)}
+                                        {"%"}
                                     </td>
                                 </tr>
                             ))}

@@ -2,42 +2,37 @@ import cv2
 import base64
 import json
 import tempfile
+import numpy as np
 from django.http import JsonResponse, StreamingHttpResponse
+from io import BytesIO
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.base import ContentFile
 from django.utils.translation import gettext_lazy as _
 from ultralytics import YOLO
 from PIL import Image
-from .models import PredictedImage
+from .models import PredictedImage, Track
 from .forms import ImageDetectionForm, VideoDetectionForm
+from collections import defaultdict
+from django.core.serializers import serialize
 
-MODEL_PATH = "D:\\Niru\\Coding\\Projects\\Important\\Secureye\\1\\Secureye\\prediction\\mlModel\\best1.pt"
 
-RESULTS_PATH = (
-    "D:\\Niru\\Coding\\Projects\\Important\\Secureye\\1\\Secureye\\media\\results.jpg"
-)
+MODEL_PATH = "D:\\Niru\\Coding\\Projects\\Important\\Secureye\\2\\Secureye\\prediction\\mlModel\\best.pt"
 
 model = YOLO(MODEL_PATH)
 
 
 @csrf_exempt
 def imagePrediction(request):
-    detected_objects = []
-    predicted_image = None
-
     if request.method == "POST":
         form = ImageDetectionForm(request.POST, request.FILES)
 
         if form.is_valid():
             image = form.save()
 
-            results = model.predict(source=image.image.path, conf=0.3)
+            results = model.predict(source=image.image.path, conf=0.5)
 
+            detected_objects = []
             for result in results:
-                im_array = result.plot()
-                im = Image.fromarray(im_array[..., ::-1])
-                im.save(RESULTS_PATH)
-
                 boxes = result.boxes.cpu().numpy()
 
                 for box in boxes:
@@ -45,74 +40,168 @@ def imagePrediction(request):
                     confidence_score = round(float(box.conf[0]), 2) * 100
 
                     detected_objects.append(
-                        {"class": detected_class, "confidence": confidence_score}
+                        {
+                            "detected_class": detected_class,
+                            "detected_confidence": confidence_score,
+                        }
                     )
 
             predicted_image = PredictedImage.objects.create()
 
-            with open(
-                RESULTS_PATH,
-                "rb",
-            ) as file:
-                content = file.read()
-                predicted_image.image.save("predicted_image.jpg", ContentFile(content))
+            im_array = results[0].plot()
+            im = Image.fromarray(im_array[..., ::-1])
+            buffer = BytesIO()
+            im.save(buffer, format="JPEG")
+            encoded_image = base64.b64encode(buffer.getvalue()).decode("utf-8")
+            buffer.close()
 
-            with open(RESULTS_PATH, "rb") as file:
-                encoded_image = base64.b64encode(file.read()).decode("utf-8")
-
+            predicted_image.image.save(
+                "predicted_image.jpg", ContentFile(encoded_image)
+            )
             predicted_image.save()
 
             image.predicted_image = predicted_image
             image.save()
 
-            return JsonResponse({"objects": detected_objects, "image": encoded_image})
+            return JsonResponse(
+                {
+                    "image_detected_objects": detected_objects,
+                    "predicted_image": encoded_image,
+                }
+            )
         else:
-            return JsonResponse({"error": "Invalid form data"}, status=400)
+            errors = form.errors.as_json()
+            return JsonResponse({"error": errors}, status=400)
 
-    return JsonResponse({"error": "Invalid HTTP method"}, status=405)
+    return JsonResponse({"error": "Invalid HTTP Method In Image API"}, status=405)
+
+
+sorted_tracked_items_list = []
 
 
 class VideoProcessor:
-    def __init__(self):
+    video_processing_complete = False
+
+    def _init_(self):
         self.temp_video_path = None
 
     def process_temp_video(self, video_file):
+        self.video_processing_complete = False
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as temp_video:
             temp_video.write(video_file.read())
             self.temp_video_path = temp_video.name
 
     def predict_frames(self):
         cap = cv2.VideoCapture(self.temp_video_path)
+        target_fps = 30
+        track_history = defaultdict(lambda: [])
+        processed_track_ids = set()
+        video_writers = {}
+        target_fps = 10
 
         if not cap.isOpened():
             print("Error: Could not open video file.")
             return
 
         frame_counter = 0
+        try:
+            while not self.video_processing_complete:
+                success, frame = cap.read()
+                if success:
+                    frame_counter += 1
 
-        while True:
-            success, frame = cap.read()
-            if success:
-                results = model(frame, conf=0.5)
-                if results:
-                    annotated_frame = results[0].plot()
+                    skip_factor = int(30 / target_fps)
+
+                    if frame_counter % skip_factor != 0:
+                        continue
+
+                    results = model.track(
+                        frame,
+                        verbose=False,
+                        persist=True,
+                        conf=0.4,
+                        iou=0.0,
+                        tracker="bytetrack.yaml",
+                    )
+
+                    annotated_frame = results[0].plot(conf=False, line_width=1)
+
                     _, buffer = cv2.imencode(".jpg", annotated_frame)
                     frame_bytes = buffer.tobytes()
                     base64_data = base64.b64encode(frame_bytes).decode("utf-8")
 
-                    frame_path = f"/predicted_frames/frame_{frame_counter}.jpg"
+                    if results:
+                        if results[0].boxes.id is not None:
+                            boxes = results[0].boxes.xywh.cpu()
+                            track_ids = results[0].boxes.id.int().cpu().tolist()
+                            class_ids = results[0].boxes.cls.int().cpu().tolist()
 
-                    yield f'data: {json.dumps({"image": base64_data, "path": frame_path})}\n\n'
-                    print(f"Sent frame {frame_counter}")
-                    frame_counter += 1
-                else:
-                    if frame_counter == cap.get(cv2.CAP_PROP_FRAME_COUNT):
-                        print("End of video.")
+                            for box, track_id, class_id in zip(
+                                boxes, track_ids, class_ids
+                            ):
+                                if track_id == -1:
+                                    continue
+
+                                x, y, w, h = box
+                                track = track_history[track_id]
+                                track.append((float(x), float(y)))
+                                if len(track) > 50:
+                                    track.pop(0)
+
+                                points = (
+                                    np.hstack(track)
+                                    .astype(np.int32)
+                                    .reshape((-1, 1, 2))
+                                )
+                                cv2.polylines(
+                                    annotated_frame,
+                                    [points],
+                                    isClosed=False,
+                                    color=(230, 230, 230),
+                                    thickness=10,
+                                )
+
+                                class_name = results[0].names[class_id]
+
+                                processed_track_ids.add((track_id, class_name))
+                                if track_id not in video_writers:
+                                    output_video_path = (
+                                        f"track_id_{track_id}_{class_name}.mp4"
+                                    )
+                                    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+                                    video_writer = cv2.VideoWriter(
+                                        output_video_path,
+                                        fourcc,
+                                        target_fps,
+                                        (frame.shape[1], frame.shape[0]),
+                                    )
+                                    video_writers[track_id] = video_writer
+
+                                video_writers[track_id].write(frame)
+
+                            yield f'data: {json.dumps({"video_frame": base64_data})}\n\n'
+                        else:
+                            yield f'data: {json.dumps({"video_frame": base64_data})}\n\n'
+
                     else:
-                        print("Error: Failed to read frame from video.")
+                        print("Something problem related to Results")
+                else:
+                    print("Error: Failed to read frame from video., outer else part")
                     break
+        finally:
+            cap.release()
 
-        cap.release()
+            for video_writer in video_writers.values():
+                video_writer.release()
+
+            tracked_cls_List = list(processed_track_ids)
+            sorted_tracked_items_list = sorted(tracked_cls_List, key=lambda x: x[0])
+
+            for track_id, class_name in sorted_tracked_items_list:
+                Track.objects.create(track_id=track_id, class_name=class_name)
+            cap.release()
+
+            self.video_processing_complete = True
 
 
 video_processor = VideoProcessor()
@@ -126,6 +215,7 @@ def videoPrediction(request):
             if form.is_valid():
                 video_file = form.cleaned_data["video"]
                 video_processor.process_temp_video(video_file)
+                Track.objects.all().delete()
                 return JsonResponse({"success": "Video processing started."})
             else:
                 return JsonResponse({"error": "Invalid form data"}, status=400)
@@ -136,6 +226,34 @@ def videoPrediction(request):
 
 
 @csrf_exempt
+def fetchTrackData(request):
+    if request.method == "GET":
+        if not Track.objects.exists():
+            print("Database is empty")
+            return JsonResponse({"error": "Database is empty"}, status=400)
+
+        tracked_items = Track.objects.all()
+
+        serialized_data = serialize("json", tracked_items)
+        deserialized_data = json.loads(serialized_data)
+
+        simplified_data = []
+
+        for track in deserialized_data:
+            track_fields = track["fields"]
+            simplified_track = {
+                "track_id": track_fields["track_id"],
+                "detected_class": track_fields["class_name"],
+            }
+            simplified_data.append(simplified_track)
+
+        return JsonResponse({"video_detected_objects": simplified_data}, safe=False)
+    else:
+        print("Invalid request method")
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+@csrf_exempt
 def videoSSEFrames(request):
     try:
         response = StreamingHttpResponse(
@@ -143,8 +261,7 @@ def videoSSEFrames(request):
         )
         response["Cache-Control"] = "no-cache"
         response["Access-Control-Allow-Origin"] = "*"
-        response["Access-Control-Allow-Methods"] = "*"
-        response["Access-Control-Allow-Headers"] = "*"
+
         return response
     except Exception as e:
         print(f"Error in sendingFrames: {str(e)}")
@@ -156,36 +273,115 @@ def webcamSSEFrames(request):
     def event_stream():
         cap = cv2.VideoCapture(0)
 
+        target_fps = 30
+        track_history = defaultdict(lambda: [])
+        processed_track_ids = set()
+
+        video_writers = {}
+        target_fps = 10
+
+        elements_sent = []
+
         if not cap.isOpened():
             print("Error: Could not open webcam.")
             return
 
+        frame_counter = 0
+
         try:
-            frame_counter = 0
+
             while True:
                 success, frame = cap.read()
                 if success:
-                    results = model(frame, conf=0.5)
+                    frame_counter += 1
+
+                    skip_factor = int(30 / target_fps)
+
+                    if frame_counter % skip_factor != 0:
+                        continue
+
+                    results = model.track(
+                        frame,
+                        verbose=False,
+                        persist=True,
+                        conf=0.4,
+                        iou=0.0,
+                        tracker="bytetrack.yaml",
+                    )
+                    annotated_frame = results[0].plot(conf=False, line_width=1)
+
+                    _, buffer = cv2.imencode(".jpg", annotated_frame)
+                    frame_bytes = buffer.tobytes()
+                    base64_data = base64.b64encode(frame_bytes).decode("utf-8")
+                    processed_track_ids = set()
                     if results:
-                        annotated_frame = results[0].plot()
-                        _, buffer = cv2.imencode(".jpg", annotated_frame)
-                        frame_bytes = buffer.tobytes()
-                        base64_data = base64.b64encode(frame_bytes).decode("utf-8")
+                        if results and results[0].boxes.id is not None:
 
-                        # Generate a unique path for each frame
-                        frame_path = f"/predicted_frames/frame_{frame_counter}.jpg"
+                            boxes = results[0].boxes.xywh.cpu()
+                            track_ids = results[0].boxes.id.int().cpu().tolist()
+                            class_ids = results[0].boxes.cls.int().cpu().tolist()
 
-                        # Send the frame data and path to the frontend through SSE
-                        yield f'data: {{ "image": "{base64_data}","path": "{frame_path}"}}\n\n'
+                            for box, track_id, class_id in zip(
+                                boxes, track_ids, class_ids
+                            ):
+                                if track_id == -1:
+                                    continue
 
-                        frame_counter += 1
+                                x, y, w, h = box
+                                track = track_history[track_id]
+                                track.append((float(x), float(y)))
+                                if len(track) > 50:
+                                    track.pop(0)
+
+                                points = (
+                                    np.hstack(track)
+                                    .astype(np.int32)
+                                    .reshape((-1, 1, 2))
+                                )
+                                cv2.polylines(
+                                    annotated_frame,
+                                    [points],
+                                    isClosed=False,
+                                    color=(230, 230, 230),
+                                    thickness=10,
+                                )
+
+                                class_name = results[0].names[class_id]
+
+                                processed_track_ids.add((track_id, class_name))
+                            unique_list = []
+
+                            for track_id, class_name in processed_track_ids:
+                                element = f"{class_name}"
+                                if element not in unique_list:
+                                    unique_list.append(element)
+
+                            for element in unique_list:
+                                if element not in elements_sent:
+                                    elements_sent.append(element)
+
+                                    data = {
+                                        "webcam_frame": base64_data,
+                                        "detected_object": {"detected_element": element},
+                                    }
+
+                                    yield f"data: {json.dumps(data)}\n\n"
+                                else:
+                                    yield f'data: {json.dumps({"webcam_frame": base64_data})}\n\n'
+                        else:
+                            yield f'data: {json.dumps({"webcam_frame": base64_data})}\n\n'
+                    else:
+
+                        print("something wrong with the results and track_info")
                 else:
                     print("Error: Failed to read frame from webcam.")
                     break
 
         except Exception as e:
-            print("Error in predictFrames:", str(e))
+            print("Error in webcamSSE:", str(e))
         finally:
             cap.release()
+            for video_writer in video_writers.values():
+                video_writer.release()
 
     return StreamingHttpResponse(event_stream(), content_type="text/event-stream")

@@ -6,14 +6,26 @@ import { useDispatch } from "react-redux";
 
 import { verifyAuthentication, fetchUser } from "@/features/auth/authActions";
 import { resetImagePrediction } from "@/features/image/imageSlice";
+import {
+    resetVideoPrediction,
+    resetVideoDetectedObjects,
+} from "@/features/video/videoSlice";
+import {
+    resetWebcamPrediction,
+    resetWebcamDetectedObjects,
+} from "@/features/webcam/webcamSlice";
 
 function Layout({ title, children }) {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch(verifyAuthentication());
         dispatch(fetchUser());
+        dispatch(verifyAuthentication());
         dispatch(resetImagePrediction());
+        dispatch(resetVideoPrediction());
+        dispatch(resetVideoDetectedObjects());
+        dispatch(resetWebcamPrediction());
+        dispatch(resetWebcamDetectedObjects());
     }, [dispatch]);
 
     const helmetProps = useMemo(

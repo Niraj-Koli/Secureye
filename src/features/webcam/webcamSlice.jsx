@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
+    webcamDetectedObjects: [],
     webcamEventSource: null,
     webcamFrames: [],
     webcamError: false,
@@ -10,33 +11,38 @@ const webcamSlice = createSlice({
     name: "webcam",
     initialState,
     reducers: {
-        setWebcamEventSource: (state, action) => {
-            return { ...state, webcamEventSource: action.payload };
+        setWebcamDetectedObjects(state, action) {
+            state.webcamDetectedObjects.push(action.payload);
         },
-        setWebcamFrames: (state, action) => {
-            return { ...state, webcamFrames: action.payload };
+        resetWebcamDetectedObjects(state) {
+            state.webcamDetectedObjects = [];
         },
-        resetWebcamFrames: (state) => {
-            return { ...state, webcamFrames: [] };
+        setWebcamEventSource(state, action) {
+            state.webcamEventSource = action.payload;
         },
-        closeWebcamEventSource: (state) => {
+        setWebcamFrames(state, action) {
+            state.webcamFrames = action.payload;
+        },
+        setWebcamError(state, action) {
+            state.webcamError = action.payload;
+        },
+        resetWebcamPrediction(state) {
+            state.webcamFrames = [];
+
             if (state.webcamEventSource) {
                 state.webcamEventSource.close();
-                return { ...state, webcamEventSource: null };
+                state.webcamEventSource = null;
             }
-            return state;
-        },
-        setWebcamError: (state, action) => {
-            return { ...state, webcamError: action.payload };
         },
     },
 });
 
 export const {
+    setWebcamDetectedObjects,
+    resetWebcamDetectedObjects,
     setWebcamEventSource,
     setWebcamFrames,
-    resetWebcamFrames,
-    closeWebcamEventSource,
     setWebcamError,
+    resetWebcamPrediction,
 } = webcamSlice.actions;
 export default webcamSlice.reducer;

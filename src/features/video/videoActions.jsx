@@ -3,10 +3,11 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import { setCsrfToken } from "@/features/csrf/csrfSlice";
 import {
+    setVideoDetectedObjects,
     setVideoEventSource,
     setVideoFrames,
-    resetVideoFrames,
-    closeVideoEventSource,
+    setShowReport,
+    resetVideoPrediction,
 } from "@/features/video/videoSlice";
 
 const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_URL;
@@ -42,7 +43,31 @@ export const processVideo = createAsyncThunk(
             }
         } catch (error) {
             console.log(error);
-            throw new Error("Error Uploading Video");
+        }
+    }
+);
+
+export const fetchVideoTrackInfo = createAsyncThunk(
+    "video/fetchVideoTrackInfo",
+    async (_, { dispatch }) => {
+        try {
+            const response = await axios.get(
+                `${API_BASE_URL}/prediction/fetchData/`
+            );
+
+            if (response.status === 200) {
+                const data = response.data;
+
+                const detectedVideoObjects = data.video_detected_objects;
+
+                dispatch(setVideoDetectedObjects(detectedVideoObjects));
+
+                return data;
+            } else {
+                throw new Error("Failed To Upload Video");
+            }
+        } catch (error) {
+            console.log(error);
         }
     }
 );
@@ -50,30 +75,25 @@ export const processVideo = createAsyncThunk(
 export const startVideoServerSentEventSource = createAsyncThunk(
     "video/startVideoServerSentEventSource",
     async (_, { dispatch }) => {
-        dispatch(resetVideoFrames());
+        dispatch(resetVideoPrediction());
         const eventSource = new EventSource(
             `${API_BASE_URL}/prediction/videoFrames/`
         );
 
         eventSource.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            const imageFrame = data.image;
+            
+            const videoFrame = data.video_frame;
 
-            dispatch(setVideoFrames([imageFrame]));
+            dispatch(setVideoFrames([videoFrame]));
         };
 
         eventSource.onerror = (error) => {
+            dispatch(setShowReport());
             console.log("Event source error:", error);
+            eventSource.close();
         };
 
         dispatch(setVideoEventSource(eventSource));
-    }
-);
-
-export const closeVideoServerSendEventSource = createAsyncThunk(
-    "video/closeVideoServerSendEventSource",
-    async (_, { dispatch }) => {
-        dispatch(resetVideoFrames());
-        dispatch(closeVideoEventSource());
     }
 );

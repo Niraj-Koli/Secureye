@@ -1,5 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+import {
+    fetchUser,
+    verifyAuthentication,
+    loginUserRequest,
+} from "@/features/auth/authActions";
+
 const initialState = {
     accessToken: localStorage.getItem("access"),
     refreshToken: localStorage.getItem("refresh"),
@@ -12,46 +18,60 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         authenticatedSuccess: (state) => {
-            return { ...state, isAuthenticated: true };
+            state.isAuthenticated = true;
         },
         authenticatedFail: (state) => {
-            return { ...state, isAuthenticated: false };
+            state.isAuthenticated = false;
         },
         loginSuccess: (state, action) => {
             const { access, refresh } = action.payload;
 
             localStorage.setItem("access", access);
             localStorage.setItem("refresh", refresh);
-            return {
-                ...state,
-                isAuthenticated: true,
-                accessToken: access,
-                refreshToken: refresh,
-            };
+            state.isAuthenticated = true;
+            state.accessToken = access;
+            state.refreshToken = refresh;
         },
         loginFail: (state) => {
-            return { ...state, isAuthenticated: false };
+            state.isAuthenticated = false;
         },
         signupSuccess: (state) => {
-            return { ...state, isAuthenticated: false };
+            state.isAuthenticated = false;
         },
         userLoadedSuccess: (state, action) => {
-            return { ...state, user: action.payload };
+            state.user = action.payload;
         },
         userLoadedFail: (state) => {
-            return { ...state, user: null };
+            state.user = null;
         },
         logout: (state) => {
             localStorage.removeItem("access");
             localStorage.removeItem("refresh");
-            return {
-                ...state,
-                accessToken: null,
-                refreshToken: null,
-                isAuthenticated: false,
-                user: null,
-            };
+            state.accessToken = null;
+            state.refreshToken = null;
+            state.isAuthenticated = false;
+            state.user = null;
         },
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchUser.fulfilled, (state, action) => {
+                state.isAuthenticated = true;
+                state.user = action.payload;
+            })
+            .addCase(fetchUser.rejected, (state) => {
+                state.isAuthenticated = false;
+                state.user = null;
+            })
+            .addCase(verifyAuthentication.fulfilled, (state, action) => {
+                state.isAuthenticated = action.payload;
+            })
+            .addCase(verifyAuthentication.rejected, (state) => {
+                state.isAuthenticated = false;
+            })
+            .addCase(loginUserRequest.rejected, (state) => {
+                state.isAuthenticated = false;
+            });
     },
 });
 

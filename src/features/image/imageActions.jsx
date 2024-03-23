@@ -31,13 +31,18 @@ export const processImage = createAsyncThunk(
             if (response.status === 200) {
                 const data = response.data;
 
+                const predictedImage = data.predicted_image;
+                const detectedImageObjects = data.image_detected_objects;
+
                 const newCsrfToken = response.headers["x-csrftoken"];
                 dispatch(setCsrfToken(newCsrfToken));
 
                 dispatch(
-                    setPredictedImage(`data:image/jpeg;base64,${data.image}`)
+                    setPredictedImage(
+                        `data:image/jpeg;base64,${predictedImage}`
+                    )
                 );
-                dispatch(setImageDetectedObjects(data.objects));
+                dispatch(setImageDetectedObjects(detectedImageObjects));
 
                 return data;
             } else {

@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useState } from "react";
+import { Suspense, lazy, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -16,9 +16,11 @@ import styles from "./Webcam.module.css";
 import { setWebcamError } from "@/features/webcam/webcamSlice";
 
 import {
-    closeWebcamServerSendEventSource,
-    startWebcamServerSentEventSource,
-} from "@/features/webcam/webcamActions";
+    resetWebcamPrediction,
+    resetWebcamDetectedObjects,
+} from "@/features/webcam/webcamSlice";
+
+import { startWebcamServerSentEventSource } from "@/features/webcam/webcamActions";
 
 const Loading = lazy(() => import("@/components/Elementals/Loading/Loading"));
 const Navbar = lazy(() => import("@/components/Elementals/Navbar/Navbar"));
@@ -38,19 +40,15 @@ function Webcam() {
     );
     const webcamError = useSelector((state) => state.webcam.webcamError);
 
-    useEffect(() => {
-        if (webcamEventSource) {
-            return () => {
-                dispatch(closeWebcamServerSendEventSource());
-            };
-        }
-    }, [dispatch, webcamEventSource]);
+    const webcamDetectedObjects = useSelector(
+        (state) => state.webcam.webcamDetectedObjects
+    );
 
     const webcamStartHandler = useCallback(() => {
         setIsPredicting(true);
 
         if (webcamEventSource) {
-            dispatch(closeWebcamServerSendEventSource());
+            dispatch(resetWebcamPrediction());
         }
 
         dispatch(startWebcamServerSentEventSource()).catch((error) => {
@@ -59,13 +57,15 @@ function Webcam() {
     }, [dispatch, webcamEventSource]);
 
     const webcamStopHandler = useCallback(() => {
-        dispatch(closeWebcamServerSendEventSource());
+        dispatch(resetWebcamPrediction());
+        dispatch(resetWebcamDetectedObjects());
         setIsPredicting(false);
     }, [dispatch]);
 
     const errorDialogCloseHandler = useCallback(() => {
         dispatch(setWebcamError(false));
-        dispatch(closeWebcamServerSendEventSource());
+        dispatch(resetWebcamPrediction());
+        dispatch(resetWebcamDetectedObjects());
         setIsPredicting(false);
     }, [dispatch]);
 
@@ -115,6 +115,36 @@ function Webcam() {
                         </Button>
                     </div>
                 </div>
+            </div>
+
+            <div className={styles.reportTableCard}>
+                <h1 className={styles.reportTableHeading}>
+                    <span>{"Report"}</span>
+                </h1>
+
+                <table className={styles.reportTable}>
+                    <thead>
+                        <tr>
+                            <th className={styles.reportHeading}>{"No."}</th>
+                            <th className={styles.reportHeading}>
+                                {"Objects"}
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {webcamDetectedObjects.map((object, index) => (
+                            <tr key={index + 1}>
+                                <td className={styles.tableCells}>
+                                    {index + 1}
+                                </td>
+                                <td className={styles.tableCells}>
+                                    {object.detected_element}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
 
             <Dialog

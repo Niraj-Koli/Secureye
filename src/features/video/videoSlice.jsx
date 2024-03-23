@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
     videoDetectedObjects: [],
     videoEventSource: null,
+    showReport: false,
     videoFrames: [],
 };
 
@@ -10,37 +11,39 @@ const videoSlice = createSlice({
     name: "video",
     initialState,
     reducers: {
-        setVideoDetectedObjects: (state, action) => {
-            return { ...state, videoDetectedObjects: action.payload };
+        setVideoDetectedObjects(state, action) {
+            state.videoDetectedObjects = action.payload;
         },
-        resetVideoDetectedObjects: (state) => {
-            return { ...state, videoDetectedObjects: [] };
+        resetVideoDetectedObjects(state) {
+            state.videoDetectedObjects = [];
         },
-        setVideoEventSource: (state, action) => {
-            return { ...state, videoEventSource: action.payload };
+        setVideoEventSource(state, action) {
+            state.videoEventSource = action.payload;
         },
-        setVideoFrames: (state, action) => {
-            return { ...state, videoFrames: action.payload };
+        setShowReport(state) {
+            state.showReport = true
         },
-        resetVideoFrames: (state) => {
-            return { ...state, videoFrames: [] };
+        setVideoFrames(state, action) {
+            state.videoFrames = action.payload;
         },
-        closeVideoEventSource: (state) => {
+        resetVideoPrediction(state) {
+            state.videoFrames = [];
+            state.showReport = false;
+
             if (state.videoEventSource) {
                 state.videoEventSource.close();
-                return { ...state, videoEventSource: null };
+                state.videoEventSource = null;
             }
-            return state;
         },
     },
 });
 
 export const {
     setVideoDetectedObjects,
-    resetVideoDetectedObjects,
     setVideoEventSource,
     setVideoFrames,
-    resetVideoFrames,
-    closeVideoEventSource,
+    setShowReport,
+    resetVideoDetectedObjects,
+    resetVideoPrediction,
 } = videoSlice.actions;
 export default videoSlice.reducer;
