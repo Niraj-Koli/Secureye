@@ -88,7 +88,7 @@ class VideoProcessor:
     def _init_(self):
         self.temp_video_path = None
 
-    def process_temp_video(self, video_file,video_file_path):
+    def process_temp_video(self, video_file, video_file_path):
         self.video_processing_complete = False
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as temp_video:
             temp_video.write(video_file.read())
@@ -120,9 +120,9 @@ class VideoProcessor:
             while not self.video_processing_complete:
                 success, frame = cap.read()
                 if success:
-                    
+
                     timestamp = frame_counter / cap.get(cv2.CAP_PROP_FPS)
-                    
+
                     frame_counter += 1
 
                     skip_factor = int(30 / target_fps)
@@ -157,19 +157,28 @@ class VideoProcessor:
                                 if track_id == -1:
                                     continue
 
-
                                 if timestamps[track_id] == 0.0:
                                     timestamps[track_id] = timestamp
 
                                 x, y, w, h = box
                                 track = track_history[track_id]
                                 track.append((float(x), float(y)))
-                                
+
                                 if len(track) > 50:
                                     track.pop(0)
-                                    
-                                points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
-                                cv2.polylines(annotated_frame, [points], isClosed=False, color=(230, 230, 230), thickness=10)
+
+                                points = (
+                                    np.hstack(track)
+                                    .astype(np.int32)
+                                    .reshape((-1, 1, 2))
+                                )
+                                cv2.polylines(
+                                    annotated_frame,
+                                    [points],
+                                    isClosed=False,
+                                    color=(230, 230, 230),
+                                    thickness=10,
+                                )
 
                                 class_name = results[0].names[class_id]
 
@@ -178,15 +187,28 @@ class VideoProcessor:
                                 if track_id not in video_writers:
                                     snippet_counter = 1
                                     while True:
-                                        folder_path = f"{self.video_file_path}_{snippet_counter}"
-                                        output_video_path = os.path.join(folder_path, f"track_id_{track_id}_{class_name}.mp4")
+                                        folder_path = (
+                                            f"{self.video_file_path}_{snippet_counter}"
+                                        )
+                                        output_video_path = os.path.join(
+                                            folder_path,
+                                            f"track_id_{track_id}_{class_name}.mp4",
+                                        )
                                         if not os.path.exists(output_video_path):
                                             break
                                         snippet_counter += 1
 
-                                    os.makedirs(os.path.dirname(output_video_path), exist_ok=True)
-                                    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-                                    video_writer = cv2.VideoWriter(output_video_path, fourcc, target_fps, (frame.shape[1], frame.shape[0]))
+                                    os.makedirs(
+                                        os.path.dirname(output_video_path),
+                                        exist_ok=True,
+                                    )
+                                    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+                                    video_writer = cv2.VideoWriter(
+                                        output_video_path,
+                                        fourcc,
+                                        target_fps,
+                                        (frame.shape[1], frame.shape[0]),
+                                    )
                                     video_writers[track_id] = video_writer
 
                                 video_writers[track_id].write(frame)
@@ -211,7 +233,9 @@ class VideoProcessor:
 
             for track_id, class_name in sorted_tracked_items_list:
                 timestamp = timestamps.get(track_id, 0.0)
-                Track.objects.create(track_id=track_id, class_name=class_name, timestamp=timestamp)
+                Track.objects.create(
+                    track_id=track_id, class_name=class_name, timestamp=timestamp
+                )
             cap.release()
 
             self.video_processing_complete = True
@@ -234,7 +258,7 @@ def videoPrediction(request):
                 )
 
                 video_processor.process_temp_video(video_file, video_file_path)
-                
+
                 Track.objects.all().delete()
                 return JsonResponse({"success": "Video processing started."})
             else:
@@ -390,7 +414,7 @@ def webcamSSEFrames(request):
                             unique_list = []
 
                             for track_id, class_name in processed_track_ids:
-                                element = f"{class_name}"
+                                element = f"trackId {track_id} {class_name}"
                                 if element not in unique_list:
                                     unique_list.append(element)
 
@@ -400,11 +424,11 @@ def webcamSSEFrames(request):
                                     timestamp = datetime.now().strftime(
                                         "%d-%B-%Y %I:%M %p"
                                     )
-
+                                    class_name = element.split()[-1]
                                     data = {
                                         "webcam_frame": base64_data,
                                         "detected_object": {
-                                            "detected_element": element,
+                                            "detected_element": class_name,
                                             "element_timestamp": timestamp,
                                         },
                                     }

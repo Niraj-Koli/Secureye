@@ -44,7 +44,7 @@
     box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
     border-radius: 2rem;
     width: 100%;
-    max-width: 110rem;
+    max-width: 100rem;
     height: 58rem;
     max-height: 100%;
     padding: 0.7rem;
@@ -58,6 +58,7 @@
     align-items: center;
     width: 100%;
     height: 100%;
+    background-color: #000000;
     border-radius: 1.6rem;
     background-size: cover;
     background-position: center;

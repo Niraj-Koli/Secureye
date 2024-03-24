@@ -13,7 +13,6 @@ function VideoServerSentEvents() {
 
     return (
         <>
-            {console.log(videoEventSource)}
             <div className={styles.videoCard}>
                 <div
                     className={styles.videoTemplate}

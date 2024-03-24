@@ -130,7 +130,7 @@ function Webcam() {
                                 {"Objects"}
                             </th>
                             <th className={styles.reportHeading}>
-                                {"Timestamp"}
+                                {"Timestamps"}
                             </th>
                         </tr>
                     </thead>

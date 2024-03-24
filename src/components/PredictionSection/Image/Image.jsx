@@ -83,7 +83,7 @@ function Image() {
             pdf.line(10, 6, 200, 6);
 
             pdf.setFontSize(22);
-            pdf.text("Prediction Report", 105, 15, {
+            pdf.text("Image Prediction Report", 105, 15, {
                 align: "center",
             });
 
@@ -169,7 +169,7 @@ function Image() {
 
             pdf.setFontSize(20);
             pdf.setTextColor(0, 0, 0);
-            pdf.text("© Guardinger Technologies", 105, 287, {
+            pdf.text("© Secureye", 105, 287, {
                 align: "center",
             });
 
