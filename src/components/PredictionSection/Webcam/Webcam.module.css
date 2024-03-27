@@ -3,10 +3,10 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 40px;
+    gap: 4rem;
     position: relative;
     left: 50%;
-    transform: translate(-50%, 2rem);
+    transform: translate(-50%, 1.5rem);
 }
 
 .predictionButtonsActions {
@@ -14,30 +14,28 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 5rem;
-    margin: 0 0 2rem;
+    gap: 7rem;
     position: relative;
     left: 50%;
-    transform: translate(-50%, 6rem);
+    transform: translate(-50%, 5rem);
 }
 
 .predictionButtonCard {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
-    align-items: center;
     box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
-    border-radius: 1.6rem;
+    border-radius: 1rem;
     width: 100%;
-    max-width: 40rem;
+    max-width: 30rem;
     background-color: #ffffff;
 }
 
 .predictButton {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 600;
-    margin: 2.5rem;
-    width: 80%;
+    margin: 2.2rem 1.8rem;
+    width: 75%;
     border: none;
     background-color: #000000;
     color: #ffffff;
@@ -56,46 +54,46 @@
     align-items: center;
     margin: 0 0 15rem;
     box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
-    border-radius: 1.6rem;
+    border-radius: 1rem;
     width: 100%;
-    max-width: 80rem;
+    max-width: 70rem;
     background-color: #ffffff;
     position: relative;
     left: 50%;
-    transform: translate(-50%, 8rem);
+    transform: translate(-50%, 9rem);
 }
 
 .reportTableHeading {
-    padding-top: 3rem;
-    font-size: 2.7rem;
+    padding-top: 2rem;
+    font-size: 1.8rem;
 }
 
 .reportTableHeading span {
     background: #000000;
     color: #fff;
     display: inline-block;
-    padding: 0.7rem 4rem;
+    padding: 0.8rem 4rem 1rem;
     clip-path: polygon(100% 0, 93% 50%, 100% 99%, 0% 100%, 7% 50%, 0% 0%);
 }
 
 .reportTable {
     width: 85%;
-    border-radius: 1.6rem;
+    border-radius: 1rem;
     border-collapse: separate;
-    margin: 3rem;
+    margin: 2rem 0 5rem;
 }
 
 .reportHeading {
-    font-size: 2rem;
+    font-size: 1.7rem;
     font-weight: 600;
     text-align: center;
-    padding: 1.2rem;
+    padding: 1rem 0;
     border: 0.1rem solid #dddddd;
     background-color: #f2f2f2;
 }
 
 .tableCells {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 600;
     text-align: center;
     padding: 0.8rem;
@@ -104,10 +102,10 @@
 }
 
 .reportDownloadButton {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 600;
     margin: 0 0 3rem;
-    width: 30%;
+    width: 20%;
     border: none;
     background-color: #000000;
     color: #ffffff;

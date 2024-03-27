@@ -86,9 +86,9 @@ function Webcam() {
                     <div className={styles.predictionButtonCard}>
                         {isPredicting ? (
                             <CircularProgress
-                                size={72}
+                                size={60}
                                 color="inherit"
-                                sx={{ margin: "1rem" }}
+                                sx={{ padding: "1.14rem" }}
                             />
                         ) : (
                             <Button
