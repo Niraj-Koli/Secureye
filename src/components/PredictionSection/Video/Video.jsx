@@ -109,9 +109,9 @@ function Video() {
     const loadingSpinner =
         isLoading || showSpinner ? (
             <CircularProgress
-                size={72}
+                size={60}
                 color="inherit"
-                sx={{ margin: "1rem" }}
+                sx={{ padding: "1.14rem" }}
             />
         ) : null;
 
@@ -147,7 +147,7 @@ function Video() {
                             style={{
                                 backgroundImage: originalVideo
                                     ? "none"
-                                    : 'url("/static/videoDefault.jpg")',
+                                    : 'url("/static/imageDefault.jpg")',
                             }}>
                             {originalVideo && (
                                 <video
@@ -242,7 +242,7 @@ function Video() {
 
                     {isGeneratingPdf ? (
                         <CircularProgress
-                            size={50}
+                            size={47}
                             color="inherit"
                             sx={{ marginBottom: "2.2rem" }}
                         />
