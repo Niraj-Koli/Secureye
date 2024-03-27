@@ -15,10 +15,7 @@ import NavigationRoundedIcon from "@mui/icons-material/NavigationRounded";
 import styles from "./Footer.module.css";
 
 function Footer() {
-    const isAuthenticated = useSelector(
-        (state) => state.auth.isAuthenticated,
-        []
-    );
+    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
     return (
         <>
@@ -27,15 +24,15 @@ function Footer() {
                     <div>
                         <NavLink to="/" className={styles.socialHeading}>
                             <VisibilityRoundedIcon className={styles.logos} />
-                            {"Secureye"}
+                            {"Secureye ©"}
                         </NavLink>
                     </div>
 
                     <div>
                         <p className={styles.description}>
-                            {"Elevate Unlimited Possibilities With"}
+                            {"Elevate Unlimited Possibilities"}
                             <br></br>
-                            {"Our Smart Innovations"}
+                            {"With Our Smart Innovations"}
                         </p>
                     </div>
 
@@ -71,7 +68,7 @@ function Footer() {
                         <LocationOnRoundedIcon
                             className={styles.contactIcons}
                         />
-                        {"Wadala, Mumbai - 400074"}
+                        {"Mumbai, India"}
                     </div>
                 </div>
 
@@ -81,26 +78,26 @@ function Footer() {
                         {"Navigate"}
                     </div>
                     <div className={styles.navigationLinks}>
+                        <LaunchSharpIcon className={styles.navigatelink} />
                         <NavLink
                             to={isAuthenticated ? "/image" : "/login"}
-                            className={styles.navigateLink}>
-                            <LaunchSharpIcon className={styles.navigatelink} />
+                            className={styles.link}>
                             {"Image"}
                         </NavLink>
                     </div>
                     <div className={styles.navigationLinks}>
+                        <LaunchSharpIcon className={styles.navigatelink} />
                         <NavLink
                             to={isAuthenticated ? "/video" : "/login"}
-                            className={styles.navigateLink}>
-                            <LaunchSharpIcon className={styles.navigatelink} />
+                            className={styles.link}>
                             {"Video"}
                         </NavLink>
                     </div>
                     <div className={styles.navigationLinks}>
+                        <LaunchSharpIcon className={styles.navigatelink} />
                         <NavLink
                             to={isAuthenticated ? "/webcam" : "/login"}
-                            className={styles.navigateLink}>
-                            <LaunchSharpIcon className={styles.navigatelink} />
+                            className={styles.link}>
                             {"Webcam"}
                         </NavLink>
                     </div>

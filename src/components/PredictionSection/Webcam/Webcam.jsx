@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -30,6 +30,8 @@ const WebcamServerSentEvents = lazy(() =>
     )
 );
 
+import audioFile from "/static/alertSound.mp3";
+
 function Webcam() {
     const [isPredicting, setIsPredicting] = useState(false);
 
@@ -43,6 +45,20 @@ function Webcam() {
     const webcamDetectedObjects = useSelector(
         (state) => state.webcam.webcamDetectedObjects
     );
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+    
+    const playSoundHandler = useCallback(() => {
+        new Audio(audioFile).play();
+    }, []);
+
+    useEffect(() => {
+        if (webcamDetectedObjects.length > 0) {
+            playSoundHandler();
+        }
+    }, [webcamDetectedObjects, playSoundHandler]);
 
     const webcamStartHandler = useCallback(() => {
         setIsPredicting(true);

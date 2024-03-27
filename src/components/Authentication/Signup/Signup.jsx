@@ -22,7 +22,9 @@ import styles from "./Signup.module.css";
 import { signupUserRequest } from "@/features/auth/authActions";
 
 const Loading = lazy(() => import("@/components/Elementals/Loading/Loading"));
-const Navbar = lazy(() => import("@/components/Elementals/Navbar/Navbar"));
+const Navigation = lazy(() =>
+    import("@/components/Elementals/Navigation/Navigation")
+);
 
 const isValidUsername = (value) => /^[a-zA-Z0-9 ]+$/.test(value);
 const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -155,7 +157,7 @@ function Signup() {
         <>
             <div className={styles.signupContainer}>
                 <Suspense fallback={<Loading />}>
-                    <Navbar />
+                    <Navigation />
                 </Suspense>
                 <div className={styles.signupCard}>
                     <h1 className={styles.signupHeading}>{"Signup"}</h1>
@@ -235,7 +237,7 @@ function Signup() {
                         <div className={styles.signupButtonContainer}>
                             {isLoading ? (
                                 <CircularProgress
-                                    size={52}
+                                    size={37}
                                     color="inherit"
                                     sx={{ margin: "1rem" }}
                                 />

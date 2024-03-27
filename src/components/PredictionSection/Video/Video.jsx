@@ -1,4 +1,15 @@
-import { Suspense, lazy, useCallback, useMemo, useRef, useState } from "react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+
+import {
+    Suspense,
+    lazy,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Button, CircularProgress } from "@mui/material";
@@ -45,6 +56,10 @@ function Video() {
     );
     const showReport = useSelector((state) => state.video.showReport);
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     const videoChangeHandler = useCallback((event) => {
         const file = event.target.files[0];
         setOriginalVideo(file);
@@ -64,7 +79,7 @@ function Video() {
         }
 
         dispatch(processVideo(originalVideo))
-            .then(() => new Promise((resolve) => setTimeout(resolve, 3000)))
+            .then(() => new Promise((resolve) => setTimeout(resolve, 5000)))
             .then(() => dispatch(startVideoServerSentEventSource()))
             .then(() => {
                 setShowSpinner(false);
@@ -92,8 +107,70 @@ function Video() {
     }, [dispatch]);
 
     const downloadPdfHandler = async () => {
+        setIsGeneratingPdf(true);
         try {
-            setIsGeneratingPdf(true);
+            const pdf = new jsPDF();
+
+            pdf.setLineDash([]);
+            pdf.line(10, 6, 200, 6);
+
+            pdf.setFontSize(20);
+            pdf.text("Video Prediction Report", 105, 15, {
+                align: "center",
+            });
+
+            pdf.setLineDash([]);
+            pdf.line(10, 19, 200, 19);
+
+            pdf.setFontSize(16);
+
+            const tableColumns = ["No.", "Objects", "Confidence"];
+            const tableRows = videoDetectedObjects.map((object, index) => [
+                index + 1,
+                object.detected_class,
+                `${object.detected_timestamps.toFixed(2)} `,
+            ]);
+
+            pdf.autoTable({
+                head: [tableColumns],
+                body: tableRows,
+                startY: 25,
+                theme: "grid",
+                styles: {
+                    cellPadding: 2,
+                    fontSize: 11,
+                    textColor: [0, 0, 0],
+                    fontStyle: "normal",
+                    valign: "middle",
+                    halign: "center",
+                },
+                headStyles: {
+                    fontSize: 13,
+                    fillColor: [242, 242, 242],
+                    textColor: [0, 0, 0],
+                    valign: "middle",
+                    halign: "center",
+                },
+                margin: { left: 20, right: 20 },
+            });
+
+            pdf.addPage();
+
+            pdf.setFontSize(14);
+
+            pdf.setLineDash([]);
+            pdf.line(10, 278, 200, 278);
+
+            pdf.setFontSize(20);
+            pdf.setTextColor(0, 0, 0);
+            pdf.text("© Secureye", 105, 287, {
+                align: "center",
+            });
+
+            pdf.setLineDash([]);
+            pdf.line(10, 292, 200, 292);
+
+            pdf.save("video_prediction_report.pdf");
         } catch (error) {
             console.log(error);
         } finally {
@@ -147,7 +224,7 @@ function Video() {
                             style={{
                                 backgroundImage: originalVideo
                                     ? "none"
-                                    : 'url("/static/imageDefault.jpg")',
+                                    : 'url("/static/defaultPlaceholder.jpg")',
                             }}>
                             {originalVideo && (
                                 <video

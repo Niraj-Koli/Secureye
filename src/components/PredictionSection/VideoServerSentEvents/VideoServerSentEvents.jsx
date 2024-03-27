@@ -19,7 +19,7 @@ function VideoServerSentEvents() {
                     style={{
                         backgroundImage: videoEventSource
                             ? "none"
-                            : 'url("/static/imageDefault.jpg")',
+                            : 'url("/static/defaultPlaceholder.jpg")',
                     }}>
                     {memoizedVideoFrames.map((frame, index) => (
                         <img

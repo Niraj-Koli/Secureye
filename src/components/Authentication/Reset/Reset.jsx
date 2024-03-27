@@ -18,7 +18,7 @@ import styles from "./Reset.module.css";
 import { requestPasswordReset } from "@/features/auth/authActions";
 
 const Loading = lazy(() => import("@/components/Elementals/Loading/Loading"));
-const Navbar = lazy(() => import("@/components/Elementals/Navbar/Navbar"));
+const Navigation = lazy(() => import("@/components/Elementals/Navigation/Navigation"));
 
 const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
@@ -99,7 +99,7 @@ function Reset() {
         <>
             <div className={styles.resetContainer}>
                 <Suspense fallback={<Loading />}>
-                    <Navbar />
+                    <Navigation />
                 </Suspense>
                 <div className={styles.resetCard}>
                     <h1 className={styles.resetHeading}>{"Reset Password"}</h1>
@@ -126,7 +126,7 @@ function Reset() {
                         <div className={styles.resetButtonContainer}>
                             {isLoading ? (
                                 <CircularProgress
-                                    size={52}
+                                    size={37}
                                     color="inherit"
                                     sx={{ margin: "1rem" }}
                                 />

@@ -3,37 +3,22 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #E6D8AF;
+    background-image: url("/static/homeBackground.jpg");
+    background-size: cover;
     padding: 0 0 5rem;
 }
 
 .aboutHeading {
-    position: relative;
-    padding: 1.35rem 5rem;
-    font-size: 3rem;
-    margin: 2rem 0 2rem;
-    overflow: hidden;
-    background: linear-gradient(currentcolor, currentcolor) no-repeat top center,
-        linear-gradient(currentcolor, currentcolor) no-repeat bottom center;
-    background-size: calc(100% - 6.2rem) 0.1rem;
+    padding: 3rem 0 2rem;
+    font-size: 2.5rem;
 }
 
-.aboutHeading:before,
-.aboutHeading:after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    border: solid 0.2rem;
-    border-top: none;
-    border-bottom: none;
-    transform: skew(45deg);
-}
-
-.aboutHeading:after {
-    transform: skew(-45deg);
+.aboutHeading span {
+    background: #ff5c33;
+    color: #ffffff;
+    display: inline-block;
+    padding: 0.8rem 4rem 1rem;
+    clip-path: polygon(100% 0, 93% 50%, 100% 99%, 0% 100%, 7% 50%, 0% 0%);
 }
 
 .about {
@@ -44,18 +29,20 @@
 }
 
 .aboutCard {
-    padding: 2rem 3rem;
-    width: 55rem;
-    border-radius: 1.5rem;
+    padding: 3rem 5rem;
+    width: 43rem;
+    border-radius: 1rem;
     background-color: #534438;
-    color: #fff;
+    color: #ffffff;
     box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+    background-image: url("/static/toolsCard.png");
+    background-size: cover;
 }
 
 .aboutImage {
     width: 100%;
-    height: 25rem;
-    border-radius: 1.6rem;
+    height: 20rem;
+    border-radius: 1rem;
 }
 
 .aboutTitle {
@@ -68,5 +55,5 @@
     font-size: 1.5rem;
     font-weight: 500;
     line-height: 1.5;
-    padding: 1rem 0;
+    padding: 1rem 0 2rem;
 }

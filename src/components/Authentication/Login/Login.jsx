@@ -21,7 +21,9 @@ import styles from "./Login.module.css";
 import { loginUserRequest } from "@/features/auth/authActions";
 
 const Loading = lazy(() => import("@/components/Elementals/Loading/Loading"));
-const Navbar = lazy(() => import("@/components/Elementals/Navbar/Navbar"));
+const Navigation = lazy(() =>
+    import("@/components/Elementals/Navigation/Navigation")
+);
 
 const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 const isValidPassword = (value) => value.trim().length > 7 && !/\s/.test(value);
@@ -124,7 +126,7 @@ function Login() {
         <>
             <div className={styles.loginContainer}>
                 <Suspense fallback={<Loading />}>
-                    <Navbar />
+                    <Navigation />
                 </Suspense>
                 <div className={styles.loginCard}>
                     <h1 className={styles.loginHeading}>{"Login"}</h1>
@@ -189,7 +191,7 @@ function Login() {
                         <div className={styles.loginButtonContainer}>
                             {isLoading ? (
                                 <CircularProgress
-                                    size={52}
+                                    size={37}
                                     color="inherit"
                                     sx={{ margin: "1rem" }}
                                 />

@@ -7,7 +7,7 @@ import styles from "./Activation.module.css";
 import { activateUserAccount } from "@/features/auth/authActions";
 
 const Loading = lazy(() => import("@/components/Elementals/Loading/Loading"));
-const Navbar = lazy(() => import("@/components/Elementals/Navbar/Navbar"));
+const Navigation = lazy(() => import("@/components/Elementals/Navigation/Navigation"));
 
 function Activation() {
     const { uid, token } = useParams();
@@ -24,7 +24,7 @@ function Activation() {
         <>
             <div className={styles.activationContainer}>
                 <Suspense fallback={<Loading />}>
-                    <Navbar />
+                    <Navigation />
                 </Suspense>
                 <div className={styles.activationCard}>
                     <h1 className={styles.activationHeading}>

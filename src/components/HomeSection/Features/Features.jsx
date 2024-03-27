@@ -1,67 +1,101 @@
 import { Suspense, lazy } from "react";
+import { useSelector } from "react-redux";
+import { NavLink } from "react-router-dom";
+import { Button } from "@mui/material";
+
+import ImageSearchRoundedIcon from "@mui/icons-material/ImageSearchRounded";
+import VideoFileRoundedIcon from "@mui/icons-material/VideoFileRounded";
+import VoiceChatRoundedIcon from "@mui/icons-material/VoiceChatRounded";
 
 import styles from "./Features.module.css";
 
-import image from "/static/image.jpg";
-import video from "/static/video.png";
-import webcam from "/static/webcam.png";
-
 const Loading = lazy(() => import("@/components/Elementals/Loading/Loading"));
-const Img = lazy(() => import("@/components/Elementals/Img/Img"));
 
 function Features() {
+    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
     return (
         <>
             <div className={styles.featuresContainer}>
                 <h1 className={styles.featuresHeading}>
-                    {"Secureye Features"}
+                    <span>{"Secureye Tools"}</span>
                 </h1>
 
                 <div className={styles.features}>
                     <div className={styles.featuresCard}>
                         <Suspense fallback={<Loading />}>
-                            <Img
-                                src={image}
-                                alt="Image"
-                                className={styles.featureImage}
+                            <ImageSearchRoundedIcon
+                                sx={{
+                                    fontSize: 100,
+                                    color: "#ff5c33",
+                                }}
                             />
                         </Suspense>
                         <h3 className={styles.featureTitle}>{"Image"}</h3>
                         <p className={styles.featureDescription}>
                             {
-                                "Our image detection module employs advanced Machine Learning to swiftly identify objects in real-time within surveillance environments. The robust object recognition system ensures precision, contributing to rapid responses. Alerts include precise location data, enhancing the proactive defense mechanism."
+                                "Our image detection system utilizes Machine Learning for object tracking in images, ensuring precise recognition to enable rapid responses."
                             }
                         </p>
+                        <NavLink to={isAuthenticated ? "/image" : "/login"}>
+                            <Button
+                                variant="contained"
+                                size="large"
+                                fullWidth
+                                className={styles.modelsButtons}>
+                                {"Image"}
+                            </Button>
+                        </NavLink>
                     </div>
                     <div className={styles.featuresCard}>
                         <Suspense fallback={<Loading />}>
-                            <Img
-                                src={video}
-                                alt="Video"
-                                className={styles.featureImage}
+                            <VideoFileRoundedIcon
+                                sx={{
+                                    fontSize: 100,
+                                    color: "#ff5c33",
+                                }}
                             />
                         </Suspense>
                         <h3 className={styles.featureTitle}>{"Video"}</h3>
                         <p className={styles.featureDescription}>
                             {
-                                "Our application's video analysis module utilizes advanced Machine Learning to process offline video feeds. The module generates alerts with precise location data, enabling swift responses to potential threats. Rigorous testing guarantees accuracy, setting a new standard for real-time threat identification in military security."
+                                "Our video analysis module utilizes advanced Machine Learning for offline video processing, generating timestamps for any identified object instantaneously."
                             }
                         </p>
+                        <NavLink to={isAuthenticated ? "/video" : "/login"}>
+                            <Button
+                                variant="contained"
+                                size="large"
+                                fullWidth
+                                className={styles.modelsButtons}>
+                                {"Video"}
+                            </Button>
+                        </NavLink>
                     </div>
                     <div className={styles.featuresCard}>
                         <Suspense fallback={<Loading />}>
-                            <Img
-                                src={webcam}
-                                className={styles.featureImage}
-                                alt="Webcam"
+                            <VoiceChatRoundedIcon
+                                sx={{
+                                    fontSize: 100,
+                                    color: "#ff5c33",
+                                }}
                             />
                         </Suspense>
                         <h3 className={styles.featureTitle}>{"Webcam"}</h3>
                         <p className={styles.featureDescription}>
                             {
-                                "Our live footage module enhances surveillance with real-time video analysis, focusing on immediate threat detection such as weapons and armored vehicles. it ensures a proactive defense mechanism by swiftly alerting to potential dangers. The module generates alerts with precise location data, facilitating rapid and targeted responses."
+                                "Our live footage module improves surveillance with real-time video analysis, focusing on immediate threat detection and generating alerts for potential danger."
                             }
                         </p>
+                        <NavLink to={isAuthenticated ? "/webcam" : "/login"}>
+                            <Button
+                                variant="contained"
+                                size="large"
+                                fullWidth
+                                className={styles.modelsButtons}>
+                                {"Webcam"}
+                            </Button>
+                        </NavLink>
                     </div>
                 </div>
             </div>

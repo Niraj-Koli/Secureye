@@ -1,6 +1,6 @@
-.homeIntroContainer {
+.introSection {
     height: 100vh;
-    background-image: url("/static/home.jpg");
+    background-image: url("/static/h7.jpg");
     background-size: cover;
 }
 

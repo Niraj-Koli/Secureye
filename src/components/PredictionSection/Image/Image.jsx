@@ -1,7 +1,14 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
-import { Suspense, lazy, useCallback, useRef, useState } from "react";
+import {
+    Suspense,
+    lazy,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Button, CircularProgress } from "@mui/material";
@@ -31,6 +38,10 @@ function Image() {
     const imageDetectedObjects = useSelector(
         (state) => state.image.imageDetectedObjects
     );
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     const imageChangeHandler = useCallback((event) => {
         const file = event.target.files[0];

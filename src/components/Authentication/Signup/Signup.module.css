@@ -1,6 +1,6 @@
 .signupContainer {
     height: 100vh;
-    background-image: url("/static/authentication.jpg");
+    /* background-image: url("/static/.jpg"); */
     background-size: cover;
 }
 
@@ -10,10 +10,10 @@
     justify-content: center;
     align-items: center;
     box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
-    border-radius: 1.6rem;
-    padding: 2rem 4rem;
-    max-width: 52rem;
+    border-radius: 1rem;
+    padding: 2.5rem 4rem;
     width: 100%;
+    max-width: 50rem;
     margin: auto;
     background-color: #ffffff;
     position: absolute;
@@ -23,14 +23,12 @@
 }
 
 .signupHeading {
-    margin: 1rem 0;
-    font-size: 3rem;
+    font-size: 2.5rem;
 }
 
 .signupForm {
     display: flex;
     flex-direction: column;
-    margin-bottom: 0.8rem;
     width: 100%;
 }
 
@@ -41,8 +39,8 @@
 }
 
 .signupButton {
-    margin: 1.5rem 0;
-    font-size: 1.5rem;
+    margin: 1rem 0;
+    font-size: 1.2rem;
     font-weight: 600;
     background-color: #000000;
     color: #ffffff;
@@ -56,18 +54,18 @@
 }
 
 .signupInput {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 600;
 }
 
 .signupLabels {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 600;
     background: #ffffff;
 }
 
 .showPasswordIcon {
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: 600;
     color: #000000;
 }
@@ -80,7 +78,7 @@
 
 .anchors {
     color: #000000;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 600;
     cursor: pointer;
 
@@ -94,12 +92,14 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border-radius: 2rem;
+    width: 100%;
+    max-width: 70rem;
+    border-radius: 1.2rem;
 }
 
 .successTitle {
     color: #ff5c33;
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: 600;
     text-align: center;
 }
@@ -113,18 +113,18 @@
 
 .successTypography {
     color: #ff5c33;
-    font-size: 2rem;
+    font-size: 1.7rem;
     font-weight: 600;
     text-align: center;
 }
 
 .successAction {
-    width: 40%;
+    width: 25%;
 }
 
 .successButton {
     margin: 0 0 1.5rem;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 600;
     background-color: #000000;
     color: #ffffff;
@@ -142,30 +142,32 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border-radius: 2rem;
+    width: 100%;
+    max-width: 55rem;
+    border-radius: 1.2rem;
 }
 
 .errorTitle {
     color: #ff1744;
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: 600;
     text-align: center;
 }
 
 .errorMessage {
     color: #ff1744;
-    font-size: 2rem;
+    font-size: 1.7rem;
     font-weight: 600;
     text-align: center;
 }
 
 .errorAction {
-    width: 40%;
+    width: 25%;
 }
 
 .errorButton {
     margin: 0 0 1.5rem;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 600;
     background-color: #000000;
     color: #ffffff;

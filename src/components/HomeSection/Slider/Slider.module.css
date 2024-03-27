@@ -3,43 +3,33 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #ffdab9;
+    background-image: url("/static/navbar.png");
+    background-size: cover;
     padding: 0 0 5rem;
 }
 
 .sliderHeading {
-    position: relative;
-    padding: 1.35rem 5rem;
-    font-size: 3rem;
-    margin: 2rem 0 2rem;
-    overflow: hidden;
-    background: linear-gradient(currentcolor, currentcolor) no-repeat top center,
-        linear-gradient(currentcolor, currentcolor) no-repeat bottom center;
-    background-size: calc(100% - 6.2rem) 0.1rem;
+    padding: 3rem 0 2rem;
+    font-size: 2.5rem;
 }
 
-.sliderHeading:before,
-.sliderHeading:after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    border: solid 0.2rem;
-    border-top: none;
-    border-bottom: none;
-    transform: skew(45deg);
-}
-
-.sliderHeading:after {
-    transform: skew(-45deg);
+.sliderHeading span {
+    background: #000000;
+    color: #ffffff;
+    display: inline-block;
+    padding: 0.8rem 4rem 1rem;
+    clip-path: polygon(100% 0, 93% 50%, 100% 99%, 0% 100%, 7% 50%, 0% 0%);
 }
 
 .sliderCard {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
     box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
-    border-radius: 2.3rem;
+    border-radius: 1.2rem;
+    width: 100%;
+    max-width: 98rem;
+    height: 55rem;
     padding: 0.5rem;
     background-color: #ffffff;
-    width: 80%;
 }

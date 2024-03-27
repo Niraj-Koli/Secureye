@@ -32,7 +32,7 @@ def imagePrediction(request):
         if form.is_valid():
             image = form.save()
 
-            results = model.predict(source=image.image.path, conf=0.5)
+            results = model.predict(source=image.image.path, conf=0.2,iou=0.3)
 
             detected_objects = []
             for result in results:
@@ -102,7 +102,6 @@ class VideoProcessor:
 
     def predict_frames(self):
         cap = cv2.VideoCapture(self.temp_video_path)
-        target_fps = 30
         track_history = defaultdict(lambda: [])
         timestamps = defaultdict(float)
         processed_track_ids = set()

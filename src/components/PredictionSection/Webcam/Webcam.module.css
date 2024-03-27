@@ -122,30 +122,32 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border-radius: 2rem;
+    width: 100%;
+    max-width: 65rem;
+    border-radius: 1.2rem;
 }
 
 .errorTitle {
     color: #ff1744;
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: 600;
     text-align: center;
 }
 
 .errorMessage {
     color: #ff1744;
-    font-size: 2rem;
+    font-size: 1.7rem;
     font-weight: 600;
     text-align: center;
 }
 
 .errorAction {
-    width: 40%;
+    width: 25%;
 }
 
 .errorButton {
     margin: 0 0 1.5rem;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 600;
     background-color: #000000;
     color: #ffffff;

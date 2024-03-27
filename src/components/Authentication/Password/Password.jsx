@@ -21,7 +21,9 @@ import styles from "./Password.module.css";
 import { confirmPasswordReset } from "@/features/auth/authActions";
 
 const Loading = lazy(() => import("@/components/Elementals/Loading/Loading"));
-const Navbar = lazy(() => import("@/components/Elementals/Navbar/Navbar"));
+const Navigation = lazy(() =>
+    import("@/components/Elementals/Navigation/Navigation")
+);
 
 const isValidPasswordLength = (value) =>
     value.trim().length > 7 && !/\s/.test(value);
@@ -133,7 +135,7 @@ function Password() {
         <>
             <div className={styles.passwordContainer}>
                 <Suspense fallback={<Loading />}>
-                    <Navbar />
+                    <Navigation />
                 </Suspense>
                 <div className={styles.passwordCard}>
                     <h1 className={styles.passwordHeading}>
@@ -235,7 +237,7 @@ function Password() {
                         <div className={styles.passwordButtonContainer}>
                             {isLoading ? (
                                 <CircularProgress
-                                    size={52}
+                                    size={37}
                                     color="inherit"
                                     sx={{ margin: "1rem" }}
                                 />

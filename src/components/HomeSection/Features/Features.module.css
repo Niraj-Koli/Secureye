@@ -3,79 +3,77 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #1c222e;
+    background-image: url("/static/homeBackground.jpg");
+    background-size: cover;
     padding: 0 0 5rem;
 }
 
 .featuresHeading {
-    position: relative;
-    padding: 1.35rem 5rem;
-    font-size: 3rem;
-    margin: 2rem 0 2rem;
-    overflow: hidden;
+    padding: 3rem 0 2rem;
+    font-size: 2.5rem;
+}
+
+.featuresHeading span {
+    background: #ff5c33;
     color: #ffffff;
-    background: linear-gradient(currentcolor, currentcolor) no-repeat top center,
-        linear-gradient(currentcolor, currentcolor) no-repeat bottom center;
-    background-size: calc(100% - 6.2rem) 0.1rem;
-}
-
-.featuresHeading:before,
-.featuresHeading:after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    border: solid 0.2rem;
-    border-top: none;
-    border-bottom: none;
-    transform: skew(45deg);
-}
-
-.featuresHeading:after {
-    transform: skew(-45deg);
+    display: inline-block;
+    padding: 0.8rem 4rem 1rem;
+    clip-path: polygon(100% 0, 93% 50%, 100% 99%, 0% 100%, 7% 50%, 0% 0%);
 }
 
 .features {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    gap: 3rem;
+    gap: 5rem;
 }
 
 .featuresCard {
-    padding: 3rem 3rem;
-    background: #E6E6FA;
-    width: 35rem;
-    outline: 0.1rem solid #000000;
+    padding: 3rem;
+    background-image: url("/static/toolsCard.png");
+    width: 27rem;
+    outline: 0.1rem solid #ffffff;
     outline-offset: -1rem;
     text-align: center;
     box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
 }
 
 .featuresCard:hover {
-    outline: 0.2rem solid #000000;
+    outline: 0.2rem solid #ffffff;
     outline-offset: 0rem;
 }
 
 .featureImage {
-    width: 100%;
+    width: 90%;
     margin: 1rem 0;
     height: 15rem;
 }
 
 .featureTitle {
-    font-size: 2.5rem;
-    font-weight: 600;
+    font-size: 2rem;
     line-height: 1.8;
-    color: #000000;
+    color: #ffffff;
 }
 
 .featureDescription {
     font-size: 1.5rem;
-    font-weight: 600;
     line-height: 1.8;
-    color: #000000;
+    color: #ffffff;
     padding: 1rem 0;
+}
+
+.modelsButtons {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0.5rem 0 -0.5rem;
+    width: 50%;
+    border: none;
+    background-color: #000000;
+    color: #ffffff;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease-in;
+
+    &:hover {
+        background-color: #ff5c33;
+    }
 }
