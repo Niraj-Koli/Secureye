@@ -82,7 +82,7 @@ function Image() {
             pdf.setLineDash([]);
             pdf.line(10, 6, 200, 6);
 
-            pdf.setFontSize(22);
+            pdf.setFontSize(20);
             pdf.text("Image Prediction Report", 105, 15, {
                 align: "center",
             });
@@ -90,7 +90,7 @@ function Image() {
             pdf.setLineDash([]);
             pdf.line(10, 19, 200, 19);
 
-            pdf.setFontSize(18);
+            pdf.setFontSize(16);
             pdf.text("Original Image", 105, 27, { align: "center" });
             pdf.addImage(
                 originalImageData,
@@ -122,7 +122,7 @@ function Image() {
             pdf.setLineDash([]);
             pdf.line(10, 7, 200, 7);
 
-            pdf.setFontSize(22);
+            pdf.setFontSize(20);
             pdf.text("Prediction Analysis", 105, 16, {
                 align: "center",
             });
@@ -130,7 +130,7 @@ function Image() {
             pdf.setLineDash([]);
             pdf.line(10, 20, 200, 20);
 
-            pdf.setFontSize(18);
+            pdf.setFontSize(16);
 
             const tableColumns = ["No.", "Objects", "Confidence"];
             const tableRows = imageDetectedObjects.map((object, index) => [
@@ -146,14 +146,14 @@ function Image() {
                 theme: "grid",
                 styles: {
                     cellPadding: 2,
-                    fontSize: 13,
+                    fontSize: 11,
                     textColor: [0, 0, 0],
                     fontStyle: "normal",
                     valign: "middle",
                     halign: "center",
                 },
                 headStyles: {
-                    fontSize: 15,
+                    fontSize: 13,
                     fillColor: [242, 242, 242],
                     textColor: [0, 0, 0],
                     valign: "middle",
@@ -162,7 +162,7 @@ function Image() {
                 margin: { left: 20, right: 20 },
             });
 
-            pdf.setFontSize(16);
+            pdf.setFontSize(14);
 
             pdf.setLineDash([]);
             pdf.line(10, 278, 200, 278);
@@ -238,9 +238,9 @@ function Image() {
                     <div className={styles.predictionButtonCard}>
                         {isLoading ? (
                             <CircularProgress
-                                size={72}
+                                size={60}
                                 color="inherit"
-                                sx={{ margin: "1rem" }}
+                                sx={{ padding: "1.14rem" }}
                             />
                         ) : (
                             <Button
@@ -306,7 +306,7 @@ function Image() {
 
                     {isGeneratingPdf ? (
                         <CircularProgress
-                            size={50}
+                            size={47}
                             color="inherit"
                             sx={{ marginBottom: "2.2rem" }}
                         />
