@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
 import { Button } from "@mui/material";
 
@@ -13,6 +13,7 @@ import guardingerLogo from "/static/guardingerLogo.png";
 function Navigation() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
@@ -23,7 +24,12 @@ function Navigation() {
 
     return (
         <>
-            <nav className={styles.navigation}>
+            <nav
+                className={
+                    location.pathname === "/"
+                        ? styles.navigation
+                        : styles.authenticationNavigation
+                }>
                 <div className={styles.navHeader}>
                     <NavLink to="/" className={styles.brand}>
                         <img

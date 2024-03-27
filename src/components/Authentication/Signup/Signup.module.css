@@ -1,6 +1,6 @@
 .signupContainer {
     height: 100vh;
-    /* background-image: url("/static/.jpg"); */
+    background-image: url("/static/authentication.jpg");
     background-size: cover;
 }
 
@@ -93,7 +93,7 @@
     justify-content: center;
     align-items: center;
     width: 100%;
-    max-width: 70rem;
+    max-width: 80rem;
     border-radius: 1.2rem;
 }
 

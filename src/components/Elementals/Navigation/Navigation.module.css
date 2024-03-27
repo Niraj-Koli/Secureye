@@ -4,9 +4,19 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-evenly;
-    padding: 2rem;
+    padding: 1.5rem;
     background-image: url("/static/navbar.png");
     background-size: cover;
+    border-bottom: 0.2rem solid #ffffff;
+}
+
+.authenticationNavigation {
+    z-index: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    padding: 1.5rem;
 }
 
 .brand {

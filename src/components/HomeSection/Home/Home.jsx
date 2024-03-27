@@ -30,7 +30,9 @@ function Home() {
             </div>
 
             <div className={styles.contentContainer}>
-                <div className={styles.introSection}></div>
+                <div className={styles.introSection}>
+                    
+                </div>
                 <div className={styles.featuresSection}>
                     <Suspense fallback={<Loading />}>
                         <Features />
