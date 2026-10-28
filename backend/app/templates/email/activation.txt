@@ -1,0 +1,8 @@
+Hi {{ name }},
+
+Thanks for signing up for Secureye. Please confirm your email address to activate your account:
+
+{{ link }}
+
+This link expires in {{ expires_hours }} hours.
+If you didn't create an account, you can ignore this email.

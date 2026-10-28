@@ -1,0 +1,12 @@
+{
+  "source": "Old app output Old/public/afterSliderImage.jpg: bestM.pt, conf 0.2, IoU 0.3, run on Old/public/beforeSliderImage.jpg (= soldiers.jpg).",
+  "note": "Boxes were read off the old annotated image (1280 px wide, accurate to about 5 px) and are in that image's coordinates. Scale by 2880/1280 to compare with soldiers.jpg.",
+  "reference_width": 1280,
+  "detections": [
+    {"class_name": "Soldier", "confidence": 0.52, "box": [622, 148, 841, 703]},
+    {"class_name": "Soldier", "confidence": 0.47, "box": [396, 240, 727, 804]},
+    {"class_name": "Rifle",   "confidence": 0.44, "box": [16, 325, 545, 512]},
+    {"class_name": "Soldier", "confidence": 0.40, "box": [1011, 138, 1266, 708]},
+    {"class_name": "Rifle",   "confidence": 0.29, "box": [718, 252, 921, 505]}
+  ]
+}

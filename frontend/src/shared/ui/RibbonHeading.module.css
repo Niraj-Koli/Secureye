@@ -1,0 +1,22 @@
+.heading {
+  padding: 3rem 0 2rem;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.small {
+  padding: 2rem 0 0;
+  font-size: 1.8rem;
+}
+
+.ribbon {
+  display: inline-block;
+  padding: 0.8rem 4rem 1rem;
+  background: #ff5c33;
+  color: #ffffff;
+  clip-path: polygon(100% 0, 93% 50%, 100% 99%, 0% 100%, 7% 50%, 0% 0%);
+}
+
+.dark {
+  background: #000000;
+}

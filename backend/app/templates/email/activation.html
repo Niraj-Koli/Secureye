@@ -1,0 +1,7 @@
+{% extends "_base.html" %}
+{% block content %}
+<p>Hi {{ name }},</p>
+<p>Thanks for signing up. Please confirm your email address to activate your account.</p>
+{% with url=link, label="Activate account" %}{% include "_button.html" %}{% endwith %}
+<p>This link expires in {{ expires_hours }} hours.</p>
+{% endblock %}

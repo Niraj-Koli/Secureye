@@ -1,0 +1,102 @@
+.liveFrame {
+  width: 100%;
+  max-width: 98rem;
+  aspect-ratio: 16 / 9;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.video,
+.overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.video {
+  object-fit: contain;
+  background-color: #000000;
+}
+
+.overlay {
+  pointer-events: none;
+}
+
+.hidden {
+  display: none;
+}
+
+.statusCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem 2rem;
+  width: 100%;
+  max-width: 70rem;
+  padding: 1.4rem 2.4rem;
+}
+
+.statusText {
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.liveDot {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.8rem;
+  border-radius: 50%;
+  background-color: #d50032;
+  vertical-align: baseline;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.dialogTitle {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.dialogLoading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  font-size: 1.4rem;
+}
+
+.dialogAlert {
+  margin-bottom: 1.6rem;
+  font-size: 1.3rem;
+}
+
+.group {
+  margin: 1.2rem 0 0.4rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #555555;
+  text-transform: uppercase;
+}
+
+.none {
+  font-size: 1.4rem;
+  color: #555555;
+}
+
+.option :global(.MuiFormControlLabel-label) {
+  font-size: 1.5rem;
+  overflow-wrap: anywhere;
+}

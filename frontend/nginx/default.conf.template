@@ -1,0 +1,92 @@
+# Serves the built web app and forwards the API and admin site to FastAPI (${API_UPSTREAM}).
+# Rendered at container start by the nginx image, which substitutes only the variables set in the
+# environment: ${API_UPSTREAM}, and ${NGINX_LOCAL_RESOLVERS} (see the Dockerfile).
+
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    "" "";
+}
+
+# Keep a caller's request ID (the API checks its format), otherwise use nginx's own; the same ID
+# is in this access log and in every API and worker log line for the request.
+map $http_x_request_id $secureye_request_id {
+    default $http_x_request_id;
+    "" $request_id;
+}
+
+log_format secureye '$remote_addr - [$time_local] "$request" $status $body_bytes_sent '
+                    '$request_time "$http_user_agent" request_id=$secureye_request_id';
+
+# Nginx is the edge: X-Forwarded-For is *set* to the address it sees, never appended to. The API
+# trusts this header for rate limiting, and a visitor's own X-Forwarded-For would otherwise let
+# them pick the address the limits count. (Behind another proxy, use the realip module first.)
+server {
+    listen 8080;
+    server_name _;
+    server_tokens off;
+
+    # Look the API up at request time through the container's DNS (Docker's, in Compose) rather than
+    # once at start-up, so a recreated API container, which gets a new address, is found again.
+    resolver ${NGINX_LOCAL_RESOLVERS} valid=10s ipv6=off;
+    set $api_upstream ${API_UPSTREAM};
+    root /usr/share/nginx/html;
+    access_log /var/log/nginx/access.log secureye;
+
+    # Video uploads (the API allows up to 500 MB and checks the limit itself).
+    client_max_body_size 510m;
+
+    gzip on;
+    gzip_comp_level 5;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+
+    location = /healthz {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    # ---------------------------------------------------------------- API and admin
+    location /api/ {
+        proxy_pass $api_upstream;
+        proxy_http_version 1.1;
+        # With the port: the API builds redirects (e.g. the admin login) from it.
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Request-ID $secureye_request_id;
+        # The live-detection WebSocket.
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        # Pass uploads and Server-Sent Events (video progress) through as they flow.
+        proxy_request_buffering off;
+        proxy_buffering off;
+        # Live sessions last up to 60 minutes.
+        proxy_read_timeout 3700s;
+        proxy_send_timeout 3700s;
+    }
+
+    location /admin {
+        proxy_pass $api_upstream;
+        proxy_http_version 1.1;
+        # With the port: the API builds redirects (e.g. the admin login) from it.
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Request-ID $secureye_request_id;
+    }
+
+    # ---------------------------------------------------------------- web app
+    # Build output has content hashes in its names: cache it for good.
+    location /assets/ {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        try_files $uri =404;
+    }
+
+    # Everything else is the single-page app; index.html must always be fresh.
+    location / {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Cache-Control "no-cache" always;
+        try_files $uri /index.html;
+    }
+}

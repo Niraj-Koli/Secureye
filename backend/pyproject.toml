@@ -1,0 +1,132 @@
+[project]
+name = "secureye-backend"
+version = "0.1.0"
+description = "Secureye API: YOLO-based threat detection for images, videos and live camera feeds."
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "fastapi>=0.156.2",
+    "uvicorn[standard]>=0.54.0",
+    "pydantic>=2.14.1",
+    "pydantic-settings>=2.16.1",
+    "sqlalchemy[asyncio]>=2.1.5",
+    "asyncpg>=0.32.0",
+    "alembic>=1.20.0",
+    "structlog>=26.1.0",
+    "pyjwt>=2.15.1",
+    "pwdlib[argon2]>=0.3.1",
+    "aiosmtplib>=5.1.3",
+    "jinja2>=3.1.6",
+    "email-validator>=2.3.0",
+    # Rate limiting; its Redis storage uses the `redis` client below (app/core/rate_limit.py).
+    "limits>=5.8.0",
+    "torch>=2.14.1",
+    "torchvision>=0.29.1",
+    "ultralytics>=8.4.183",
+    "opencv-python-headless>=5.0.0.93",
+    "pillow>=13.0.0",
+    "python-multipart>=0.0.32",
+    "numpy>=2.5.4",
+    "celery[redis]>=5.6.3",
+    "av>=19.0.1",
+    "redis>=6.4.0,<6.5",
+    "lap>=0.5.13",
+    "sqladmin[auth]==0.32.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.0.0",
+    "httpx>=0.28.1",
+    "ruff>=0.17.1",
+    "mypy>=2.4.0",
+    "pre-commit>=4.7.0",
+    "celery-types>=0.26.0",
+    "httpx2>=2.13.1,<2.14",
+]
+
+[tool.uv]
+package = false
+# Ultralytics depends on the GUI build of OpenCV, which needs X11/GL system libraries that slim
+# servers and containers don't have. Drop it; `opencv-python-headless` (same `cv2` API) replaces it.
+# It also depends on polars (~180 MB), which it only imports for training, benchmarks, plots and
+# dataframe export, none of which Secureye uses (prediction and tracking never load it).
+override-dependencies = [
+    "opencv-python; sys_platform == 'never'",
+    "polars; sys_platform == 'never'",
+]
+
+# CPU-only PyTorch wheels on every platform: no multi-GB CUDA downloads. A GPU build can be
+# selected later by pointing these sources at a CUDA index.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "I",        # isort
+    "B",        # bugbear
+    "UP",       # pyupgrade
+    "SIM",      # simplify
+    "S",        # bandit (security)
+    "ASYNC",    # async pitfalls
+    "N",        # naming
+    "RUF",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "S101",        # assert is the point of tests
+    "S105", "S106", # fake credentials are test fixtures
+]
+# SQLAdmin views are configured with list/dict class attributes; they're never mutated.
+"app/admin.py" = ["RUF012"]
+
+# ---------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.13"
+strict = true
+plugins = ["pydantic.mypy"]
+files = ["app", "tests"]
+
+[[tool.mypy.overrides]]
+# asyncpg ships no type information; it is only used directly by the test fixtures.
+module = ["asyncpg", "asyncpg.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Thin adapter around Ultralytics' tracker helpers, which have no type annotations.
+module = ["app.ml.tracking"]
+disallow_untyped_calls = false
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+addopts = "-ra --strict-markers"
+markers = [
+    "ml: loads the real YOLO weights (slower; deselect with -m 'not ml')",
+]
+
+[tool.coverage.run]
+source = ["app"]
+branch = true
+# SQLAlchemy's async layer runs ORM code inside greenlets; trace them too.
+concurrency = ["greenlet", "thread"]

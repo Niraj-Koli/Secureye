@@ -1,0 +1,18 @@
+# Build context for backend/Dockerfile is the repository root; only backend/ and ml-models/ are used.
+.git
+.github
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/node_modules
+**/.venv
+**/.env
+backend/storage
+backend/tests
+backend/htmlcov
+backend/.coverage*
+frontend
+docs
+e2e

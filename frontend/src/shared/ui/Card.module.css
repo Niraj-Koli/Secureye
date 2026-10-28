@@ -1,0 +1,40 @@
+/* The white floating card the original used for loading, 404 and error screens. */
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 1.6rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 52rem;
+  padding: 2rem 4rem;
+  border-radius: 1.6rem;
+  background-color: #ffffff;
+  box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.heading {
+  margin: 1rem 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.message {
+  font-size: 1.5rem;
+}
+
+.button {
+  width: 20rem;
+  max-width: 100%;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}

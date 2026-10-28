@@ -1,0 +1,64 @@
+# Install once with:  cd backend && uv run pre-commit install
+# Run manually:       cd backend && uv run pre-commit run --all-files
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+      - id: detect-private-key
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.1
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+        files: ^backend/
+      - id: ruff-format
+        files: ^backend/
+
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy (backend)
+        entry: uv run --directory backend mypy
+        language: system
+        pass_filenames: false
+        files: ^backend/.*\.py$
+
+      # The frontend's own tools, from frontend/node_modules (run `npm ci` there first).
+      - id: prettier
+        name: prettier (frontend)
+        entry: npm --prefix frontend run --silent format:check
+        language: system
+        pass_filenames: false
+        files: ^frontend/
+      - id: eslint
+        name: eslint (frontend)
+        entry: npm --prefix frontend run --silent lint
+        language: system
+        pass_filenames: false
+        files: ^frontend/.*\.(ts|tsx|js)$
+      - id: tsc
+        name: tsc (frontend)
+        entry: npm --prefix frontend run --silent typecheck
+        language: system
+        pass_filenames: false
+        files: ^frontend/.*\.(ts|tsx)$
+      - id: e2e-format
+        name: prettier (e2e)
+        entry: npm --prefix e2e run --silent format:check
+        language: system
+        pass_filenames: false
+        files: ^e2e/
+      - id: e2e-tsc
+        name: tsc (e2e)
+        entry: npm --prefix e2e run --silent typecheck
+        language: system
+        pass_filenames: false
+        files: ^e2e/.*\.ts$

@@ -1,0 +1,133 @@
+# Secureye with Docker Compose.
+#
+#   Development services only (the API and web app run on the host, see backend/ and frontend/):
+#     docker compose up -d
+#
+#   The whole application (http://localhost:8080; emails at http://localhost:8025):
+#     cp .env.example .env          # then set SECRET_KEY
+#     docker compose --profile app up --build
+name: secureye
+
+x-backend: &backend
+  image: secureye-api:local
+  build:
+    context: .
+    dockerfile: backend/Dockerfile
+  environment:
+    ENVIRONMENT: production
+    SECRET_KEY: ${SECRET_KEY:-}
+    DATABASE_URL: postgresql+asyncpg://secureye:secureye@db:5432/secureye
+    REDIS_URL: redis://redis:6379/0
+    FRONTEND_URL: ${PUBLIC_URL:-http://localhost:8080}
+    CORS_ORIGINS: ${PUBLIC_URL:-http://localhost:8080}
+    # Browsers accept Secure cookies on http://localhost, but not on other plain-HTTP hosts:
+    # keep this true behind HTTPS, set it false only for local plain-HTTP use.
+    COOKIE_SECURE: ${COOKIE_SECURE:-true}
+    EMAIL_BACKEND: smtp
+    SMTP_HOST: ${SMTP_HOST:-mailpit}
+    SMTP_PORT: ${SMTP_PORT:-1025}
+    SMTP_USERNAME: ${SMTP_USERNAME:-}
+    SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+    SMTP_STARTTLS: ${SMTP_STARTTLS:-false}
+    SMTP_LOCAL_HOSTNAME: secureye
+    EMAIL_FROM: ${EMAIL_FROM:-Secureye <no-reply@secureye.local>}
+    JOB_RUNNER: celery
+    JOB_EVENTS_BACKEND: redis
+    # The end-to-end tests turn this off: every test comes from the same address.
+    RATE_LIMIT_ENABLED: ${RATE_LIMIT_ENABLED:-true}
+  volumes:
+    - storage:/data/storage
+  restart: unless-stopped
+
+services:
+  # ---------------------------------------------------------------- development services
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: secureye
+      POSTGRES_PASSWORD: secureye
+      POSTGRES_DB: secureye
+    ports:
+      # Host port 5433 by default so it doesn't collide with a natively installed PostgreSQL.
+      # Development services listen on this machine only: they use default credentials.
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U secureye -d secureye"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "127.0.0.1:${REDIS_HOST_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  mailpit:
+    # Catches every outgoing email; web UI at http://localhost:8025
+    image: axllent/mailpit:v1.31
+    ports:
+      - "127.0.0.1:${MAILPIT_SMTP_PORT:-1025}:1025"
+      - "127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025"
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------- the application
+  migrate:
+    <<: *backend
+    profiles: [app]
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+    healthcheck:
+      disable: true
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    <<: *backend
+    profiles: [app]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  worker:
+    <<: *backend
+    profiles: [app]
+    # One video at a time: PyTorch already uses every CPU core for each one.
+    command: ["celery", "-A", "app.workers.celery_app", "worker", "--loglevel=info", "--concurrency=1"]
+    healthcheck:
+      disable: true
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  web:
+    image: secureye-web:local
+    build:
+      context: frontend
+    profiles: [app]
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  redis-data:
+  storage:

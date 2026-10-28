@@ -1,0 +1,5 @@
+.progress {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 1300;
+}

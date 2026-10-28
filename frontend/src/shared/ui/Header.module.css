@@ -1,0 +1,117 @@
+/* Shared by the home/auth header (SiteHeader) and the detection pages' Navbar. */
+.siteHeader,
+.navbar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+  gap: 1.6rem;
+  padding: 1.5rem;
+}
+
+.banner {
+  background-image: url("../../assets/images/navbar.webp");
+  background-size: cover;
+  border-bottom: 0.2rem solid #ffffff;
+}
+
+.navbar {
+  padding: 2rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 2.1rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+.brandLight {
+  color: #ffffff;
+  font-weight: 400;
+}
+
+.logo {
+  width: 5rem;
+  height: auto;
+}
+
+.navbar .logo {
+  width: 4rem;
+}
+
+.navLinks {
+  display: flex;
+  gap: 2rem;
+}
+
+.navItem {
+  padding: 0 0.5rem 0.5rem;
+  border-bottom: 0.3rem solid transparent;
+  font-size: 1.9rem;
+  font-weight: 600;
+  color: #000000;
+  transition: border-color 0.3s ease-in;
+}
+
+.navItem:hover,
+.navItemActive {
+  border-bottom-color: #000000;
+}
+
+.actions {
+  display: flex;
+  gap: 2.4rem;
+}
+
+.button {
+  padding: 0.3rem 2rem;
+  font-size: 1.5rem;
+}
+
+.menuButton {
+  display: none;
+  color: #000000;
+}
+
+.drawer {
+  display: flex;
+  flex-direction: column;
+  gap: 2.4rem;
+  min-width: 24rem;
+  padding: 3rem 2.4rem;
+}
+
+.drawer .actions {
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+@media (max-width: 900px) {
+  .navbar {
+    justify-content: space-between;
+  }
+
+  .navbar .navLinks,
+  .desktopOnly {
+    display: none;
+  }
+
+  .menuButton {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 480px) {
+  .siteHeader .actions {
+    gap: 1.2rem;
+  }
+
+  .siteHeader .button {
+    padding: 0.3rem 1.2rem;
+  }
+}

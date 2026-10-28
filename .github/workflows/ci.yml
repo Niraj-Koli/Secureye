@@ -1,0 +1,199 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------- backend
+  backend:
+    name: Backend (lint, types, migrations, tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: secureye
+          POSTGRES_PASSWORD: secureye
+          POSTGRES_DB: secureye_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U secureye" --health-interval 5s --health-retries 20
+      redis:
+        image: redis:8-alpine
+        ports: ["6379:6379"]
+        options: --health-cmd "redis-cli ping" --health-interval 5s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql+asyncpg://secureye:secureye@localhost:5432/secureye_test
+      TEST_REDIS_URL: redis://localhost:6379/15
+    steps:
+      - uses: actions/checkout@v7
+      - name: List the model weights (Git LFS)
+        working-directory: .
+        run: git lfs ls-files --long | cut -d' ' -f1 | sort > .lfs-assets-id
+      - name: Cache the model weights (saves LFS bandwidth)
+        uses: actions/cache@v6
+        with:
+          path: .git/lfs
+          key: lfs-${{ hashFiles('.lfs-assets-id') }}
+      - name: Fetch the model weights
+        working-directory: .
+        run: git lfs pull
+      - uses: astral-sh/setup-uv@18d369b23da25a81e9458561248e1aafff6a70fa  # v10.3.1
+        with:
+          version: "0.12.3"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - name: Install
+        run: uv sync --frozen
+      - name: Ruff
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+      - name: mypy (strict)
+        run: uv run mypy
+      - name: Migrations match the models
+        env:
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+        run: |
+          uv run alembic upgrade head
+          uv run alembic check
+      - name: Tests (including the real-model tests)
+        run: uv run pytest --cov --cov-report=term --cov-report=xml
+      - name: The frontend's API schema is up to date
+        run: |
+          uv run python -m app.cli export-openapi "$RUNNER_TEMP/openapi.json"
+          diff -u ../frontend/openapi.json "$RUNNER_TEMP/openapi.json"
+
+  # ---------------------------------------------------------------- frontend
+  frontend:
+    name: Frontend (lint, types, tests, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run coverage
+      - run: npm run build
+
+  # ---------------------------------------------------------------- audits
+  audit:
+    name: Security audits
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@18d369b23da25a81e9458561248e1aafff6a70fa  # v10.3.1
+        with:
+          version: "0.12.3"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - name: Python dependencies (pip-audit)
+        working-directory: backend
+        # torch/torchvision come from the PyTorch index, which pip-audit can't look up.
+        run: |
+          uv sync --frozen
+          uv run --with pip-audit==2.10.1 pip-audit --progress-spinner off
+      - name: Python code (Bandit)
+        working-directory: backend
+        run: uvx bandit@1.9.4 -r app -q
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: npm dependencies
+        run: |
+          (cd frontend && npm audit --audit-level=high)
+          (cd e2e && npm audit --audit-level=high)
+
+  # ---------------------------------------------------------------- the whole application
+  e2e:
+    name: Docker images, end-to-end tests, image scan
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v7
+      - name: List the model weights (Git LFS)
+        run: git lfs ls-files --long | cut -d' ' -f1 | sort > .lfs-assets-id
+      - uses: actions/cache@v6
+        with:
+          path: .git/lfs
+          key: lfs-${{ hashFiles('.lfs-assets-id') }}
+      - name: Fetch the model weights
+        run: git lfs pull
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069  # v4
+      - name: Settings for the test stack
+        run: |
+          {
+            echo "SECRET_KEY=$(openssl rand -base64 48 | tr -d '\n')"
+            # Every test comes from the same address; the API tests cover rate limiting.
+            echo "RATE_LIMIT_ENABLED=false"
+          } > .env
+      - name: Build and start the stack
+        run: docker compose --profile app up --build --detach --wait --wait-timeout 300
+      - name: Create a superuser for the admin test
+        env:
+          SECUREYE_SUPERUSER_PASSWORD: E2e-Admin-Granite-9
+        run: >-
+          docker compose exec -T -e SECUREYE_SUPERUSER_PASSWORD api
+          python -m app.cli create-superuser --email e2e-admin@example.com --name "E2E Admin"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+      - name: Install Playwright
+        working-directory: e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: End-to-end tests
+        working-directory: e2e
+        env:
+          E2E_ADMIN_EMAIL: e2e-admin@example.com
+          E2E_ADMIN_PASSWORD: E2e-Admin-Granite-9
+        run: npx playwright test
+      - name: Logs of the stack
+        if: failure()
+        run: docker compose --profile app logs --no-color --tail 300
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report
+          path: e2e/playwright-report
+          retention-days: 7
+      - name: Scan the API image (Trivy)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
+        with:
+          image-ref: secureye-api:local
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+      - name: Scan the web image (Trivy)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
+        with:
+          image-ref: secureye-web:local
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"

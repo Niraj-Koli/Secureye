@@ -1,0 +1,102 @@
+.backdrop {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: url("../../assets/images/compare-before.webp") center / cover;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.6rem 6rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 50rem;
+  padding: 2.5rem 4rem;
+  border-radius: 1rem;
+  background-color: #ffffff;
+  box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.2);
+}
+
+.heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.field input {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.field label {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.field :global(.MuiFormHelperText-root) {
+  font-size: 1.2rem;
+}
+
+.toggleIcon {
+  font-size: 2.5rem;
+  color: #000000;
+}
+
+.submit {
+  margin: 1rem 0;
+  font-size: 1.2rem;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.link {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.message {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 2rem 0 1rem;
+  font-size: 1.5rem;
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 2rem 2rem;
+  }
+}
