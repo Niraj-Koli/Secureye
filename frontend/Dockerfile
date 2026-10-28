@@ -11,6 +11,11 @@ RUN npm run build
 
 # Runs as a non-root user and listens on 8080.
 FROM nginxinc/nginx-unprivileged:1.30-alpine3.24
+# Pick up Alpine security fixes released after the base image was built (e.g. curl); the base
+# image runs as the unprivileged nginx user, so switch to root for this and back afterwards.
+USER root
+RUN apk upgrade --no-cache
+USER 101
 # API_UPSTREAM is substituted into the config at start-up (nginx's envsubst templates), and so is
 # NGINX_LOCAL_RESOLVERS, which the image's entrypoint reads from /etc/resolv.conf when asked to.
 ENV API_UPSTREAM=http://api:8000 \
