@@ -101,21 +101,13 @@ All errors share one JSON shape: `{"detail": ..., "code": "<machine_code>"}`.
 
 ## How image detection works
 
-1. The upload is read with a size cap (15 MB) and **decoded** with Pillow to validate it: JPEG,
-   PNG, WebP or BMP; at most 50 MP (blocks decompression bombs). The filename and
-   Content-Type are not trusted, and the EXIF rotation is applied so phone photos aren't sideways.
-2. `bestM` runs in a worker thread (the event loop never blocks) with the original thresholds,
-   confidence 0.2 and IoU 0.3. A capacity limiter keeps inferences from piling up and competing for the CPU.
+1. The upload is read with a size cap (15 MB) and **decoded** with Pillow to validate it: JPEG, PNG, WebP or BMP; at most 50 MP (blocks decompression bombs). The filename and Content-Type are not trusted, and the EXIF rotation is applied so phone photos aren't sideways.
+2. `bestM` runs in a worker thread (the event loop never blocks) with the original thresholds, confidence 0.2 and IoU 0.3. A capacity limiter keeps inferences from piling up and competing for the CPU.
 3. Boxes are drawn with the **original app's colors and style** (`app/ml/annotate.py`).
-4. The original and the annotated JPEG are stored under `storage/images/<user>/<uuid>/`.
-   The result row is saved per user (`image_detections`).
-5. The response includes the detections plus **signed links** to both images. `<img src>` can't
-   send an `Authorization` header, so files are served from `/files/…?expires=…&signature=…`
-   (HMAC-SHA256, 1 h validity), the same approach as S3 presigned URLs.
+4. The original and the annotated JPEG are stored under `storage/images/<user>/<uuid>/`. The result row is saved per user (`image_detections`).
+5. The response includes the detections plus **signed links** to both images. `<img src>` can't send an `Authorization` header, so files are served from `/files/…?expires=…&signature=…` (HMAC-SHA256, 1 h validity), the same approach as S3 presigned URLs.
 
-The models load once at startup and run one warm-up inference (about 10 s on CPU), so the first request
-isn't slow. Ultralytics is forced offline (`YOLO_OFFLINE`, `YOLO_AUTOINSTALL=false`): the server
-never sends analytics, probes connectivity, or pip-installs packages at runtime.
+The models load once at startup and run one warm-up inference (about 10 s on CPU), so the first request isn't slow. Ultralytics is forced offline (`YOLO_OFFLINE`, `YOLO_AUTOINSTALL=false`): the server never sends analytics, probes connectivity, or pip-installs packages at runtime.
 
 ## How video detection works
 
@@ -148,42 +140,23 @@ GET /videos/{id}/events (SSE) ◄───────────────�
 
 One WebSocket per session (full protocol in `app/api/live_socket.py`):
 
-1. The client connects and sends `{"type": "start", "token": "<access token>", "source": "browser"}`
-   (or `"source": "camera", "camera_id": N`). The token goes in the first message, not the URL, so it never
-   lands in access logs. It must arrive within 10 s. Connections from origins outside
-   `CORS_ORIGINS` are refused, which guards against cross-site WebSocket hijacking.
-2. **Browser source (default):** the client sends camera frames as binary JPEGs. The server answers with
-   `detections` JSON (track ids, classes, boxes) and the browser draws its own overlay, so only
-   small JSON travels back. **Server camera:** an admin-registered device index or stream URL is read
-   in a background thread, and the server also sends the annotated JPEG.
-3. Each newly seen object produces one `new_object` message (the report row and the alert sound) and a
-   `live_events` row. Each tracked object gets a clip of annotated frames, filed by date as in the
-   original (`live/<user>/<session>/<YYYY-MM-DD>/<hhmmssam>_track_<id>_<class>.mp4`).
-4. **Only the newest frame is analysed.** Frames arriving while the model is busy are dropped and
-   counted, so latency never builds up.
-5. Sessions end on `{"type": "stop"}`, disconnect, end of the source, or a 60-minute limit; the session
-   is always saved. Each user can have 2 concurrent sessions.
+1. The client connects and sends `{"type": "start", "token": "<access token>", "source": "browser"}` (or `"source": "camera", "camera_id": N`). The token goes in the first message, not the URL, so it never lands in access logs. It must arrive within 10 s. Connections from origins outside `CORS_ORIGINS` are refused, which guards against cross-site WebSocket hijacking.
+2. **Browser source (default):** the client sends camera frames as binary JPEGs. The server answers with `detections` JSON (track ids, classes, boxes) and the browser draws its own overlay, so only small JSON travels back. **Server camera:** an admin-registered device index or stream URL is read in a background thread, and the server also sends the annotated JPEG.
+3. Each newly seen object produces one `new_object` message (the report row and the alert sound) and a `live_events` row. Each tracked object gets a clip of annotated frames, filed by date as in the original (`live/<user>/<session>/<YYYY-MM-DD>/<hhmmssam>_track_<id>_<class>.mp4`).
+4. **Only the newest frame is analysed.** Frames arriving while the model is busy are dropped and counted, so latency never builds up.
+5. Sessions end on `{"type": "stop"}`, disconnect, end of the source, or a 60-minute limit; the session is always saved. Each user can have 2 concurrent sessions.
 
-Live detection uses `bestS` with confidence 0.4 (as before) and **IoU 0.45**. The original 0.0 discarded
-any overlapping same-class objects, about 12% fewer detections on our test footage.
+Live detection uses `bestS` with confidence 0.4 (as before) and **IoU 0.45**. The original 0.0 discarded any overlapping same-class objects, about 12% fewer detections on our test footage.
 
-Measured on this machine (CPU): about 250 ms per frame with `bestS`, so a browser session runs at about
-4 analysed frames per second.
+Measured on this machine (CPU): about 250 ms per frame with `bestS`, so a browser session runs at about 4 analysed frames per second.
 
 ## Docker
 
-`Dockerfile` builds one image for the API, the worker and migrations (build context: the repository root, so
-the model weights are included); `docker-compose.yml` runs them with the web app:
-`docker compose --profile app up --build`. The image runs as a non-root user, without pip, logs
-JSON, and holds both models in memory (about 1 GB per API or worker process).
+`Dockerfile` builds one image for the API, the worker and migrations (build context: the repository root, so the model weights are included); `docker-compose.yml` runs them with the web app: `docker compose --profile app up --build`. The image runs as a non-root user, without pip, logs JSON, and holds both models in memory (about 1 GB per API or worker process).
 
 ## Admin site
 
-`/admin` (also through the frontend's dev server) is a superuser-only admin built with SQLAdmin:
-users, image detections, video jobs and tracks, live sessions and events, and cameras. Sign in with
-a superuser's email and password (the form calls it "Username"). Create one with
-`uv run python -m app.cli create-superuser`. Records with stored files are read-only there; delete
-them through the app so their files go too. Turn it off with `ADMIN_ENABLED=false`.
+`/admin` (also through the frontend's dev server) is a superuser-only admin built with SQLAdmin: users, image detections, video jobs and tracks, live sessions and events, and cameras. Sign in with a superuser's email and password (the form calls it "Username"). Create one with `uv run python -m app.cli create-superuser`. Records with stored files are read-only there; delete them through the app so their files go too. Turn it off with `ADMIN_ENABLED=false`.
 
 ## Security and operations
 

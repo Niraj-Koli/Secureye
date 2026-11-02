@@ -1,7 +1,6 @@
 # Dependencies
 
-Every dependency is pinned by a lockfile: `backend/uv.lock` (uv), and `frontend/package-lock.json`
-and `e2e/package-lock.json` (npm). The frontend pins exact versions in `package.json` as well.
+Every dependency is pinned by a lockfile: `backend/uv.lock` (uv), and `frontend/package-lock.json` and `e2e/package-lock.json` (npm). The frontend pins exact versions in `package.json` as well.
 
 ## Backend (`backend/pyproject.toml`)
 
@@ -31,10 +30,7 @@ Python 3.13 (`requires-python = ">=3.13,<3.14"`).
 | `python-multipart` | Multipart form parsing for uploads |
 | `sqladmin[auth]` | The superuser admin site |
 
-Two of Ultralytics' own dependencies are left out on purpose (`override-dependencies` in
-`pyproject.toml`): `opencv-python`, the GUI build, which needs X11/GL libraries that servers
-don't have (`opencv-python-headless` provides the same `cv2`); and `polars` (~180 MB), which
-Ultralytics only imports for training, benchmarks and plots, none of which Secureye uses.
+Two of Ultralytics' own dependencies are left out on purpose (`override-dependencies` in `pyproject.toml`): `opencv-python`, the GUI build, which needs X11/GL libraries that servers don't have (`opencv-python-headless` provides the same `cv2`); and `polars` (~180 MB), which Ultralytics only imports for training, benchmarks and plots, none of which Secureye uses.
 
 **Development group** (`uv sync` installs it; the Docker image doesn't):
 

@@ -1,7 +1,6 @@
 # Architecture
 
-How Secureye is put together: the components, the folder structure, the data model and the main
-flows.
+How Secureye is put together: the components, the folder structure, the data model and the main flows.
 
 ## Overview
 
@@ -97,13 +96,9 @@ flows.
 └─ .pre-commit-config.yaml      Git hooks
 ```
 
-**Backend rules:** routers handle HTTP only and delegate to services; services don't import
-FastAPI; `ml/` has no database or HTTP code, so it can be tested on its own.
+**Backend rules:** routers handle HTTP only and delegate to services; services don't import FastAPI; `ml/` has no database or HTTP code, so it can be tested on its own.
 
-**Frontend rules:** `shared/` never imports from `app/` or `features/`. API types come only from
-`schema.d.ts`, which is generated from the backend (`npm run api:generate`) and never edited by
-hand. In development Vite forwards `/api` and `/admin` to FastAPI, the same single-origin setup as
-production, which keeps the refresh cookie first-party and avoids CORS preflights.
+**Frontend rules:** `shared/` never imports from `app/` or `features/`. API types come only from `schema.d.ts`, which is generated from the backend (`npm run api:generate`) and never edited by hand. In development Vite forwards `/api` and `/admin` to FastAPI, the same single-origin setup as production, which keeps the refresh cookie first-party and avoids CORS preflights.
 
 ## Data model
 
@@ -118,51 +113,30 @@ production, which keeps the refresh cookie first-party and avoids CORS preflight
 | `live_events` | id, session_id, track_id, class_name, confidence, detected_at, clip_key | One row per newly seen object |
 | `cameras` | id, name (unique), source (device index or stream URL), enabled | Server cameras, managed by admins |
 
-Every user-owned row carries `user_id`, and every query filters by the current user. Files are
-stored under keys such as `images/<user>/<uuid>/original.jpg`; rows hold the keys, not the files.
+Every user-owned row carries `user_id`, and every query filters by the current user. Files are stored under keys such as `images/<user>/<uuid>/original.jpg`; rows hold the keys, not the files.
 
 ## Key flows
 
 ### Authentication
 
-1. `POST /api/v1/auth/signup` creates an inactive user and emails
-   `{FRONTEND_URL}/activate/{uid}/{token}`.
-2. `POST /api/v1/auth/activate` `{uid, token}` activates the account. The token is signed and
-   expires, and it is bound to a fingerprint of the account's state, so it works once and nothing
-   needs to be stored.
-3. `POST /api/v1/auth/login` returns a short-lived **access token** in the body and sets a
-   **refresh token** as an `httpOnly; SameSite=Lax` cookie scoped to `/api/v1/auth` (`Secure` in
-   production). The database stores only the refresh token's SHA-256 hash.
-4. `POST /api/v1/auth/refresh` rotates the refresh cookie and returns a new access token. The web
-   app calls it on startup (to restore the session after a reload) and on a 401, then retries the
-   request. Refreshes are single-flight within a tab and take turns across tabs (Web Locks API),
-   because reusing a rotated token revokes the whole session.
+1. `POST /api/v1/auth/signup` creates an inactive user and emails `{FRONTEND_URL}/activate/{uid}/{token}`.
+2. `POST /api/v1/auth/activate` `{uid, token}` activates the account. The token is signed and expires, and it is bound to a fingerprint of the account's state, so it works once and nothing needs to be stored.
+3. `POST /api/v1/auth/login` returns a short-lived **access token** in the body and sets a **refresh token** as an `httpOnly; SameSite=Lax` cookie scoped to `/api/v1/auth` (`Secure` in production). The database stores only the refresh token's SHA-256 hash.
+4. `POST /api/v1/auth/refresh` rotates the refresh cookie and returns a new access token. The web app calls it on startup (to restore the session after a reload) and on a 401, then retries the request. Refreshes are single-flight within a tab and take turns across tabs (Web Locks API), because reusing a rotated token revokes the whole session.
 5. `POST /api/v1/auth/logout` revokes the refresh token and clears the cookie.
-6. Password reset: `POST /auth/password-reset` (same answer whether or not the email exists) emails
-   `{FRONTEND_URL}/password/reset/confirm/{uid}/{token}`; `POST /auth/password-reset/confirm` sets
-   the password, revokes every session and sends a "password changed" email.
+6. Password reset: `POST /auth/password-reset` (same answer whether or not the email exists) emails `{FRONTEND_URL}/password/reset/confirm/{uid}/{token}`; `POST /auth/password-reset/confirm` sets the password, revokes every session and sends a "password changed" email.
 
 ### Image detection
 
-`POST /api/v1/images` reads the upload with a size cap and decodes it to validate it (format,
-pixel limit, EXIF rotation). `bestM` runs in a worker thread (confidence 0.2, IoU 0.3), the boxes
-are drawn in the original app's style, both images are stored and the row is saved. The response
-holds the detections and signed links to both images. `GET /api/v1/images` lists the history.
+`POST /api/v1/images` reads the upload with a size cap and decodes it to validate it (format, pixel limit, EXIF rotation). `bestM` runs in a worker thread (confidence 0.2, IoU 0.3), the boxes are drawn in the original app's style, both images are stored and the row is saved. The response holds the detections and signed links to both images. `GET /api/v1/images` lists the history.
 
 ### Video detection
 
-1. `POST /api/v1/videos` streams the upload to disk (500 MB cap) and probes it with PyAV (a real
-   video, at most 10 minutes and 4K). It saves a `queued` job, enqueues a Celery task and returns
-   `202` with the job.
-2. The worker decodes the video, samples 10 frames per second by timestamp, and runs `bestM`
-   (confidence 0.5, IoU 0.6, class-agnostic NMS) with a ByteTrack tracker that belongs to this job
-   alone. It writes one H.264 clip per tracked object, records when each was first seen, and
-   publishes progress and annotated preview frames to Redis.
-3. `GET /api/v1/videos/{id}/events` (SSE, authenticated, ownership checked) relays them:
-   `status`, `progress`, `frame`, then `completed`, `failed` or `cancelled`.
+1. `POST /api/v1/videos` streams the upload to disk (500 MB cap) and probes it with PyAV (a real video, at most 10 minutes and 4K). It saves a `queued` job, enqueues a Celery task and returns `202` with the job.
+2. The worker decodes the video, samples 10 frames per second by timestamp, and runs `bestM` (confidence 0.5, IoU 0.6, class-agnostic NMS) with a ByteTrack tracker that belongs to this job alone. It writes one H.264 clip per tracked object, records when each was first seen, and publishes progress and annotated preview frames to Redis.
+3. `GET /api/v1/videos/{id}/events` (SSE, authenticated, ownership checked) relays them: `status`, `progress`, `frame`, then `completed`, `failed` or `cancelled`.
 4. `GET /api/v1/videos/{id}` returns the job and its tracks (the report table).
-5. Working files are removed when the job ends. Jobs can be cancelled, and a worker crash leads to
-   redelivery (`acks_late`).
+5. Working files are removed when the job ends. Jobs can be cancelled, and a worker crash leads to redelivery (`acks_late`).
 
 ### Live detection
 
@@ -170,39 +144,39 @@ holds the detections and signed links to both images. `GET /api/v1/images` lists
 [API reference](api.md#live-detection-websocket)).
 
 - **Browser source (default):** the web app captures the camera with `getUserMedia` and sends JPEG
-  frames at the rate the server asks for (10 per second by default). The server runs `bestS`
-  (confidence 0.4, IoU 0.45) with a tracker that belongs to this session and replies with
-  detections (boxes, classes, track ids). The web app draws the boxes over its own video. Newly seen
-  objects become `new_object` messages, which add a report row and play the alert sound.
+frames at the rate the server asks for (10 per second by default). The server runs `bestS`
+(confidence 0.4, IoU 0.45) with a tracker that belongs to this session and replies with
+detections (boxes, classes, track ids). The web app draws the boxes over its own video. Newly seen
+objects become `new_object` messages, which add a report row and play the alert sound.
 - **Server camera source:** the server reads an admin-registered device or stream URL in a
-  background thread and also sends the annotated frames back over the socket.
+background thread and also sends the annotated frames back over the socket.
 - Only the newest frame is analysed; frames that arrive while the model is busy are dropped.
 - In both modes the server records one clip per tracked object under a date folder and saves the
-  `live_sessions` and `live_events` rows.
+`live_sessions` and `live_events` rows.
 
 ## Cross-cutting concerns
 
 - **Configuration:** `pydantic-settings` from environment variables; see
-  [Configuration](configuration.md). No secrets in the code; production refuses to start without a
-  real `SECRET_KEY`.
+[Configuration](configuration.md). No secrets in the code; production refuses to start without a
+real `SECRET_KEY`.
 - **Logging:** structlog, JSON in production. Every request gets an ID (`X-Request-ID`, created or
-  kept by Nginx) that appears on all its log lines and travels with video jobs into the worker.
+kept by Nginx) that appears on all its log lines and travels with video jobs into the worker.
 - **Errors:** one JSON shape, `{"detail": …, "code": …}`; 500 responses never include a stack trace.
 - **Security:** Argon2id password hashing; short-lived JWTs with rotating refresh cookies and reuse
-  detection; rate limits on the auth and upload endpoints; a CORS allow-list (origins, methods and
-  headers); security headers, with a deny-all Content-Security-Policy on API responses and a strict
-  one on the web app (`frontend/nginx/security-headers.conf`); uploads validated by decoding them;
-  files served through signed, expiring links; a WebSocket origin check; non-root containers.
+detection; rate limits on the auth and upload endpoints; a CORS allow-list (origins, methods and
+headers); security headers, with a deny-all Content-Security-Policy on API responses and a strict
+one on the web app (`frontend/nginx/security-headers.conf`); uploads validated by decoding them;
+files served through signed, expiring links; a WebSocket origin check; non-root containers.
 - **Admin:** SQLAdmin at `/admin`, superusers only, with its own signed session cookie.
 - **Testing:** see [Testing](testing.md). `ml/` is unit-tested with stub models and
-  regression-tested with the real weights.
+regression-tested with the real weights.
 
 ## Delivery
 
 - **Images:** `backend/Dockerfile` builds one image for the API, the worker and migrations
-  (non-root, no pip at runtime, both models included); `frontend/Dockerfile` builds the app and
-  serves it with unprivileged Nginx.
+(non-root, no pip at runtime, both models included); `frontend/Dockerfile` builds the app and
+serves it with unprivileged Nginx.
 - **Compose:** `docker-compose.yml` runs PostgreSQL, Redis and Mailpit for development, and with
-  `--profile app` the whole application: `migrate` (runs once), `api`, `worker` and `web` on port
-  8080, with named volumes for the database, Redis and stored files.
+`--profile app` the whole application: `migrate` (runs once), `api`, `worker` and `web` on port
+8080, with named volumes for the database, Redis and stored files.
 - **CI:** `.github/workflows/ci.yml` (see [Testing](testing.md#continuous-integration)).

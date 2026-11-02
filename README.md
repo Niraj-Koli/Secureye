@@ -2,9 +2,7 @@
 
 ![CI](https://github.com/Niraj-Koli/Secureye/actions/workflows/ci.yml/badge.svg)
 
-**Threat detection for military security.** Secureye finds soldiers, weapons and military vehicles in  
-photos, uploaded videos and live camera feeds, using two YOLOv8 models trained for the project, and  
-turns what it sees into reports, clips and alerts.
+**Threat detection for military security.** Secureye finds soldiers, weapons and military vehicles in photos, uploaded videos and live camera feeds, using two YOLOv8 models trained for the project, and turns what it sees into reports, clips and alerts.
 
 ![Home page: banner, the three tools and the before/after comparison](docs/screenshots/home.webp)![Image page: original and annotated photo, report table and history](docs/screenshots/image-detection.webp)
 
@@ -128,8 +126,7 @@ docker compose up -d --wait db redis          # services the backend tests need
 | End-to-end (stack running) | `cd e2e && npm ci && npx playwright install chromium && npx playwright test` |
 | Everything on commit | `cd backend && uv run pre-commit install` |
 
-CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs all of these, the dependency
-and code audits, the end-to-end tests against the Docker images, and an image scan. Details,
+CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs all of these, the dependency and code audits, the end-to-end tests against the Docker images, and an image scan. Details,  
 including the settings the end-to-end tests need: [Testing](docs/testing.md).
 
 ## Documentation
@@ -175,4 +172,4 @@ counted per process.
 
 ## License
 
-[Apache 2.0](LICENSE) © 2026 Niraj Koli
+[MIT](LICENSE) © 2026 Niraj Koli

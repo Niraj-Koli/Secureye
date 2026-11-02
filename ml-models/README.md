@@ -1,7 +1,6 @@
 # Detection models
 
-Custom-trained YOLOv8 weights from the [original Secureye project](https://github.com/Niraj-Koli/Secureye/tree/442796b) (`prediction/mlModel/`),
-copied unchanged (verified by SHA-256). They are stored with Git LFS (see the root `.gitattributes`).
+Custom-trained YOLOv8 weights from the [original Secureye project](https://github.com/Niraj-Koli/Secureye/tree/442796b) (`prediction/mlModel/`), copied unchanged (verified by SHA-256). They are stored with Git LFS (see the root `.gitattributes`).
 
 | File | Architecture | Size | Used for | Default thresholds |
 |---|---|---|---|---|
@@ -24,14 +23,10 @@ Read from the weights (both models share them):
 
 ## Compatibility with the original app
 
-The original app ran these weights with Ultralytics 8.0.228 and PyTorch 2.1; the new backend
-uses Ultralytics 8.4 and PyTorch 2.14 (CPU build). `backend/tests/ml/test_detector.py` checks
-the new stack against an output the old app produced (`public/afterSliderImage.jpg` in the original project):
+The original app ran these weights with Ultralytics 8.0.228 and PyTorch 2.1; the new backend uses Ultralytics 8.4 and PyTorch 2.14 (CPU build). `backend/tests/ml/test_detector.py` checks the new stack against an output the old app produced (`public/afterSliderImage.jpg` in the original project):
 
-- All 5 of the old detections are reproduced (same class, box overlap ≥ 0.9, confidence
-  within ±0.05; in practice within ±0.03).
-- The newer Ultralytics also reports 2 extra low-confidence soldiers (0.25 and 0.23, just above
-  the 0.2 threshold). Raising the threshold to 0.3 removes them.
+- All 5 of the old detections are reproduced (same class, box overlap ≥ 0.9, confidence within ±0.05; in practice within ±0.03).
+- The newer Ultralytics also reports 2 extra low-confidence soldiers (0.25 and 0.23, just above the 0.2 threshold). Raising the threshold to 0.3 removes them.
 
 ## Performance (CPU, this development machine)
 

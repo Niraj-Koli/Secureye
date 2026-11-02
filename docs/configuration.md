@@ -1,7 +1,6 @@
 # Configuration
 
-Settings come from environment variables. The backend also reads a `.env` file in its working
-directory. No secrets are stored in the code.
+Settings come from environment variables. The backend also reads a `.env` file in its working directory. No secrets are stored in the code.
 
 | File | Read by | Template |
 |---|---|---|
@@ -13,9 +12,7 @@ All `.env` files are ignored by git.
 
 ## Docker setup (root `.env`)
 
-`docker-compose.yml` passes these to the API, the worker and the migration job. It also fixes
-several backend settings for containers: `ENVIRONMENT=production`, the database and Redis
-addresses, `JOB_RUNNER=celery` and `JOB_EVENTS_BACKEND=redis`.
+`docker-compose.yml` passes these to the API, the worker and the migration job. It also fixes several backend settings for containers: `ENVIRONMENT=production`, the database and Redis addresses, `JOB_RUNNER=celery` and `JOB_EVENTS_BACKEND=redis`.
 
 | Variable | Default | Meaning |
 |---|---|---|
@@ -32,13 +29,11 @@ addresses, `JOB_RUNNER=celery` and `JOB_EVENTS_BACKEND=redis`.
 | `REDIS_HOST_PORT` | `6379` | Host port of Redis. |
 | `MAILPIT_SMTP_PORT`, `MAILPIT_UI_PORT` | `1025`, `8025` | Host ports of Mailpit. |
 
-If you change a host port for local development, change the matching URL in `backend/.env` too
-(`DATABASE_URL`, `REDIS_URL` or `SMTP_PORT`).
+If you change a host port for local development, change the matching URL in `backend/.env` too (`DATABASE_URL`, `REDIS_URL` or `SMTP_PORT`).
 
 ## Backend (`backend/.env`)
 
-Every variable is optional in development; the defaults live in `backend/app/core/config.py`.
-Names aren't case-sensitive.
+Every variable is optional in development; the defaults live in `backend/app/core/config.py`. Names aren't case-sensitive.
 
 ### General
 
@@ -91,8 +86,7 @@ Names aren't case-sensitive.
 
 ### Thresholds and sampling
 
-The defaults are the original app's values, except live IoU (see the
-[model card](../ml-models/README.md)).
+The defaults are the original app's values, except live IoU (see the [model card](../ml-models/README.md)).
 
 | Variable | Default | Meaning |
 |---|---|---|
@@ -138,8 +132,7 @@ The defaults are the original app's values, except live IoU (see the
 | `RATE_LIMIT_ENABLED` | `true` | Per-IP limits on the auth and upload endpoints (see the [API reference](api.md#rate-limits)). |
 | `RATE_LIMIT_STORAGE_URL` | `async+<REDIS_URL>` | Where counters live. `async+memory://` runs without Redis (single process only). |
 
-`APP_NAME` (`Secureye API`) and `API_V1_PREFIX` (`/api/v1`) can also be set, but the web app and
-the Nginx config expect the default prefix.
+`APP_NAME` (`Secureye API`) and `API_V1_PREFIX` (`/api/v1`) can also be set, but the web app and the Nginx config expect the default prefix.
 
 ## Frontend (`frontend/.env`)
 
@@ -147,8 +140,7 @@ the Nginx config expect the default prefix.
 |---|---|---|
 | `API_PROXY_TARGET` | `http://localhost:8000` | Where the dev server forwards `/api` (HTTP and WebSocket) and `/admin`. |
 
-The production image needs no settings: Nginx serves the app and forwards `/api` and `/admin` to
-the `api` container (`frontend/nginx/default.conf.template`).
+The production image needs no settings: Nginx serves the app and forwards `/api` and `/admin` to the `api` container (`frontend/nginx/default.conf.template`).
 
 ## Tests and tools
 

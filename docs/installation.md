@@ -3,8 +3,7 @@
 There are two ways to run Secureye:
 
 - **With Docker (recommended to try it):** the whole application in containers, one command.
-- **For development:** PostgreSQL, Redis and Mailpit in containers; the API, the worker and the
-  web app on your machine with hot reload.
+- **For development:** PostgreSQL, Redis and Mailpit in containers; the API, the worker and the web app on your machine with hot reload.
 
 | Port | Service | Used by |
 |---|---|---|
@@ -38,9 +37,7 @@ cd Secureye
 git lfs pull                     # only needed if Git LFS was installed after cloning
 ```
 
-Check that the weights were downloaded: `ml-models/bestM.pt` is about 52 MB and `bestS.pt` about
-22 MB. Files of a few hundred bytes are Git LFS pointers, not weights (see
-[Troubleshooting](troubleshooting.md#the-api-fails-to-start-while-loading-the-models)).
+Check that the weights were downloaded: `ml-models/bestM.pt` is about 52 MB and `bestS.pt` about 22 MB. Files of a few hundred bytes are Git LFS pointers, not weights (see [Troubleshooting](troubleshooting.md#the-api-fails-to-start-while-loading-the-models)).
 
 ## 2a. Run everything with Docker
 
@@ -48,8 +45,7 @@ Check that the weights were downloaded: `ml-models/bestM.pt` is about 52 MB and 
 cp .env.example .env
 ```
 
-Open `.env` and set `SECRET_KEY` to a random value of at least 32 characters. The file shows a
-command that generates one:
+Open `.env` and set `SECRET_KEY` to a random value of at least 32 characters. The file shows a command that generates one:
 
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(48))"
@@ -61,9 +57,7 @@ Then build and start the stack:
 docker compose --profile app up --build
 ```
 
-The first build downloads PyTorch and takes several minutes. Compose starts PostgreSQL, Redis and
-Mailpit, runs the database migrations once (`migrate`), then starts the API, the video worker and
-the web app. The API loads and warms up both models at startup (about 10 s on a CPU).
+The first build downloads PyTorch and takes several minutes. Compose starts PostgreSQL, Redis and Mailpit, runs the database migrations once (`migrate`), then starts the API, the video worker and the web app. The API loads and warms up both models at startup (about 10 s on a CPU).
 
 When the services report healthy:
 
@@ -71,8 +65,7 @@ When the services report healthy:
 2. Open Mailpit at <http://localhost:8025> and click the activation link in the email.
 3. Log in and use the Image, Video and Live pages (see the [user guide](usage.md)).
 
-Optional: create a superuser for the admin site at <http://localhost:8080/admin>. You are asked
-for the password twice.
+Optional: create a superuser for the admin site at <http://localhost:8080/admin>. You are asked for the password twice.
 
 ```bash
 docker compose exec api python -m app.cli create-superuser --email you@example.com --name "Your Name"
@@ -86,8 +79,7 @@ docker compose --profile app up -d         # start again in the background
 docker compose --profile app down          # remove the containers, keep the data volumes
 ```
 
-`docker compose --profile app down -v` also deletes the volumes, which means **every account,
-detection and stored file**.
+`docker compose --profile app down -v` also deletes the volumes, which means **every account, detection and stored file**.
 
 ## 2b. Development setup
 
@@ -111,8 +103,7 @@ uv run alembic upgrade head      # create the tables
 uv run uvicorn app.main:app --reload
 ```
 
-The API runs on <http://localhost:8000>. Its interactive documentation is at
-<http://localhost:8000/docs> (development only).
+The API runs on <http://localhost:8000>. Its interactive documentation is at <http://localhost:8000/docs> (development only).
 
 ### Video worker (terminal 2)
 
@@ -135,12 +126,9 @@ npm ci
 npm run dev                      # http://localhost:5173
 ```
 
-The dev server forwards `/api` (HTTP and WebSocket) and `/admin` to the API on port 8000. Keep
-port 5173: the backend's defaults for `CORS_ORIGINS` and `FRONTEND_URL` (the links in emails)
-expect it.
+The dev server forwards `/api` (HTTP and WebSocket) and `/admin` to the API on port 8000. Keep port 5173: the backend's defaults for `CORS_ORIGINS` and `FRONTEND_URL` (the links in emails) expect it.
 
-Then sign up at <http://localhost:5173> and activate the account from Mailpit
-(<http://localhost:8025>), as above.
+Then sign up at <http://localhost:5173> and activate the account from Mailpit (<http://localhost:8025>), as above.
 
 ### Admin account (optional)
 
@@ -149,8 +137,7 @@ cd backend
 uv run python -m app.cli create-superuser --email admin@example.com --name "Admin"
 ```
 
-The admin site is at <http://localhost:5173/admin> (through the dev server) or
-<http://localhost:8000/admin>.
+The admin site is at <http://localhost:5173/admin> (through the dev server) or <http://localhost:8000/admin>.
 
 ### Git hooks (optional)
 
@@ -159,9 +146,7 @@ cd backend
 uv run pre-commit install
 ```
 
-On every commit this runs whitespace and file checks, Ruff, mypy, Prettier, ESLint and the
-TypeScript compiler on the changed parts. The frontend and e2e hooks use their own
-`node_modules`, so run `npm ci` in `frontend/` and `e2e/` first.
+On every commit this runs whitespace and file checks, Ruff, mypy, Prettier, ESLint and the TypeScript compiler on the changed parts. The frontend and e2e hooks use their own `node_modules`, so run `npm ci` in `frontend/` and `e2e/` first.
 
 ## Next steps
 

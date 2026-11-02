@@ -1,10 +1,6 @@
 # API reference
 
-The API is served under `/api/v1`: on <http://localhost:8000> in development, and through the
-web app's Nginx on <http://localhost:8080> in the Docker setup. In development the interactive
-documentation (Swagger UI) is at <http://localhost:8000/docs> and the schema at
-`/api/v1/openapi.json`; both are turned off in production. The same schema is committed as
-`frontend/openapi.json`.
+The API is served under `/api/v1`: on <http://localhost:8000> in development, and through the web app's Nginx on <http://localhost:8080> in the Docker setup. In development the interactive documentation (Swagger UI) is at <http://localhost:8000/docs> and the schema at `/api/v1/openapi.json`; both are turned off in production. The same schema is committed as `frontend/openapi.json`.
 
 ## Conventions
 
@@ -70,8 +66,7 @@ Every user-owned resource is filtered by its owner: another user's ID returns 40
 
 ## Rate limits
 
-Per client IP address and endpoint, with counters in Redis. Exceeding a limit returns 429 with a
-`Retry-After` header.
+Per client IP address and endpoint, with counters in Redis. Exceeding a limit returns 429 with a `Retry-After` header.
 
 | Endpoint | Limit |
 |---|---|
@@ -87,8 +82,7 @@ Per client IP address and endpoint, with counters in Redis. Exceeding a limit re
 
 ## Video progress events (SSE)
 
-`GET /videos/{id}/events` needs the `Authorization` header, so browsers read it with `fetch` (the
-standard `EventSource` can't send headers). Each event's `data` is JSON with a `type` field:
+`GET /videos/{id}/events` needs the `Authorization` header, so browsers read it with `fetch` (the standard `EventSource` can't send headers). Each event's `data` is JSON with a `type` field:
 
 | Event | Data |
 |---|---|
@@ -97,23 +91,16 @@ standard `EventSource` can't send headers). Each event's `data` is JSON with a `
 | `frame` | `{image (base64 JPEG), time_seconds}`: the latest annotated frame |
 | `completed`, `failed`, `cancelled` | `{status, error}`. The stream ends after this event. |
 
-If no event arrives for 20 seconds, the API re-reads the job from the database, so the stream ends
-even if the worker died without reporting.
+If no event arrives for 20 seconds, the API re-reads the job from the database, so the stream ends even if the worker died without reporting.
 
 ## Live detection WebSocket
 
-`/api/v1/live/ws`. Connections from origins outside `CORS_ORIGINS` are refused. The full protocol is
-documented in `backend/app/api/live_socket.py`.
+`/api/v1/live/ws`. Connections from origins outside `CORS_ORIGINS` are refused. The full protocol is documented in `backend/app/api/live_socket.py`.
 
 **Client to server**
 
-1. Within 10 seconds, a JSON start message:
-   `{"type": "start", "token": "<access token>", "source": "browser"}` or
-   `{"type": "start", "token": "…", "source": "camera", "camera_id": 3}`.
-   The token goes in the message rather than the URL so it never appears in access logs.
-2. Browser source: binary messages, each one camera frame as an encoded image (the web app sends
-   JPEG), up to 2 MB and 1920×1080. Larger or undecodable frames get an `error` message and are
-   skipped.
+1. Within 10 seconds, a JSON start message: `{"type": "start", "token": "<access token>", "source": "browser"}` or `{"type": "start", "token": "…", "source": "camera", "camera_id": 3}`. The token goes in the message rather than the URL so it never appears in access logs.
+2. Browser source: binary messages, each one camera frame as an encoded image (the web app sends JPEG), up to 2 MB and 1920×1080. Larger or undecodable frames get an `error` message and are skipped.
 3. `{"type": "stop"}` to end the session, or just close the socket.
 
 **Server to client** (JSON text messages)
@@ -126,9 +113,7 @@ documented in `backend/app/api/live_socket.py`.
 | `error` | `code, detail`, non-fatal (for example `frame_too_large`) |
 | `ended` | `reason`; the socket then closes |
 
-With a server camera, each `detections` message is followed by a binary message holding the
-annotated JPEG. Only the newest frame is analysed: frames arriving while the model is busy are
-dropped and counted in `dropped_frames`.
+With a server camera, each `detections` message is followed by a binary message holding the annotated JPEG. Only the newest frame is analysed: frames arriving while the model is busy are dropped and counted in `dropped_frames`.
 
 **Close codes** for refused connections:
 

@@ -28,8 +28,7 @@ Then, from `backend/`:
 | Types (strict) | `uv run mypy` |
 | Migrations match the models | `uv run alembic upgrade head` then `uv run alembic check` |
 
-The tests use their own database, `secureye_test` (created if missing and migrated once per run),
-and Redis database 15. Override them with `TEST_DATABASE_URL` and `TEST_REDIS_URL`.
+The tests use their own database, `secureye_test` (created if missing and migrated once per run), and Redis database 15. Override them with `TEST_DATABASE_URL` and `TEST_REDIS_URL`.
 
 | Folder | What it covers |
 |---|---|
@@ -52,56 +51,37 @@ From `frontend/` (after `npm ci`):
 | Formatting | `npm run format:check` (fix with `npm run format`) |
 | Production build | `npm run build` |
 
-Tests sit next to the code they test (`*.test.ts`, `*.test.tsx`). The API is mocked with MSW
-(`src/test/server.ts`); each test adds the responses it needs.
+Tests sit next to the code they test (`*.test.ts`, `*.test.tsx`). The API is mocked with MSW (`src/test/server.ts`); each test adds the responses it needs.
 
-After changing the backend's API, regenerate the frontend's types with `npm run api:generate`. CI
-fails if `frontend/openapi.json` doesn't match the backend.
+After changing the backend's API, regenerate the frontend's types with `npm run api:generate`. CI fails if `frontend/openapi.json` doesn't match the backend.
 
 ## End-to-end
 
-The tests drive Chromium against the running application, including the real models. A fake camera
-(Chrome's test pattern) stands in for a webcam on the Live page.
+The tests drive Chromium against the running application, including the real models. A fake camera (Chrome's test pattern) stands in for a webcam on the Live page.
 
-1. Turn off rate limiting for the run, because every test comes from the same address. Add this
-   line to the root `.env`, and remove it afterwards:
-
-   ```
-   RATE_LIMIT_ENABLED=false
-   ```
-
+1. Turn off rate limiting for the run, because every test comes from the same address. Add this line to the root `.env`, and remove it afterwards:
 2. Start the stack and wait until it is healthy:
-
    ```bash
-   docker compose --profile app up -d --build --wait
+              docker compose --profile app up -d --build --wait
    ```
-
 3. Optional: create a superuser for the admin test (it's skipped otherwise):
-
    ```bash
-   docker compose exec api python -m app.cli create-superuser --email e2e-admin@example.com --name "E2E Admin"
+              docker compose exec api python -m app.cli create-superuser --email e2e-admin@example.com --name "E2E Admin"
    ```
-
 4. Run the tests from `e2e/`:
-
    ```bash
-   npm ci
-   npx playwright install chromium        # once
-   E2E_ADMIN_EMAIL=e2e-admin@example.com E2E_ADMIN_PASSWORD='<the password>' npx playwright test
+              npm ci
+              npx playwright install chromium        # once
+              E2E_ADMIN_EMAIL=e2e-admin@example.com E2E_ADMIN_PASSWORD='<the password>' npx playwright test
    ```
 
-They run one at a time and take about two minutes. The tests cover sign-up, activation from the
-email (read from Mailpit), login and password reset; image, video and live detection with their
-reports and PDFs; the 404 page and the old `/webcam` address; the security headers; and the admin
-site. After a failure, `npm run report` opens the HTML report with traces and screenshots.
+They run one at a time and take about two minutes. The tests cover sign-up, activation from the email (read from Mailpit), login and password reset; image, video and live detection with their reports and PDFs; the 404 page and the old `/webcam` address; the security headers; and the admin site. After a failure, `npm run report` opens the HTML report with traces and screenshots.
 
-Settings: `E2E_BASE_URL` (default `http://localhost:8080`) and `E2E_MAILPIT_URL` (default
-`http://localhost:8025`).
+Settings: `E2E_BASE_URL` (default `http://localhost:8080`) and `E2E_MAILPIT_URL` (default `http://localhost:8025`).
 
 ## Pre-commit hooks
 
-`.pre-commit-config.yaml` runs file checks (whitespace, end of file, YAML, TOML, merge conflicts,
-large files, private keys), Ruff, mypy, Prettier, ESLint and the TypeScript compiler.
+`.pre-commit-config.yaml` runs file checks (whitespace, end of file, YAML, TOML, merge conflicts, large files, private keys), Ruff, mypy, Prettier, ESLint and the TypeScript compiler.
 
 ```bash
 cd backend
